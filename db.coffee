@@ -3,5 +3,5 @@ config = require './config'
 redis = require 'redis'
 
 module.exports =
-  postgres: knex.Initialize(config.database)
+  postgres: knex.initialize(config.database)
   redis: redis.createClient()
