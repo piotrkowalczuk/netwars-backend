@@ -1,0 +1,43 @@
+{
+    "table": "forum",
+    "data":  [
+        {
+            "forum_id": 1,
+            "forum_name": "OT",
+            "forum_desc": "Offtopic",
+            "forum_order": 1,
+            "forum_type": 1,
+            "forum_topics": 0,
+            "show_topics": 10
+        },
+        {
+            "forum_id": 2,
+            "forum_name": "Inne gry",
+            "forum_desc": "",
+            "forum_order": 1,
+            "forum_type": 1,
+            "forum_topics": 0,
+            "show_topics": 10
+        },
+        {
+            "forum_id": 3,
+            "forum_name": "StarCraft II",
+            "forum_desc": "Forum poświęcone grze StarCraft 2",
+            "forum_order": 1,
+            "forum_type": 1,
+            "forum_topics": 0,
+            "show_topics": 10
+        },
+        {
+            "forum_id": 4,
+            "forum_name": "StarCraft",
+            "forum_desc": "Forum poświęcone grze StarCraft Brood War",
+            "forum_order": 1,
+            "forum_type": 1,
+            "forum_topics": 0,
+            "show_topics": 10
+        }
+    ]
+}
+
+

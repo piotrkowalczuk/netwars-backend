@@ -15,11 +15,11 @@ module.exports = (grunt)->
       grunt.log.writeln 'Inserting data...'
 
       db.postgres(table)
-        .insert(data, 'user_id')
+        .insert(data)
         .exec (error, reply) ->
           if not error
             grunt.log.ok "#{data.length} object inerted"
           else
-            grunt.log.error "Error ##{error.code}: #{error.detail}"
+            grunt.log.error error
           done()
 
