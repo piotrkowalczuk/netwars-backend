@@ -1,0 +1,57 @@
+{
+    "table": "users",
+    "data":  [
+       {
+            "user_id": 1,
+            "user_name": "user1",
+            "user_pass": "",
+            "pass_type": 1,
+            "pass_salt": "",
+            "last_login": "2002-01-01 00:00:00",
+            "bad_logins": 1,
+            "email": "foo@bar.com",
+            "ntcnick": "",
+            "nickhistory": "",
+            "user_status": 1,
+            "change_date": "2001-01-01 00:00:00",
+            "change_user_id": 1,
+            "change_ip": "",
+            "email_used": 1,
+            "referrer": null,
+            "gg": "1234567890",
+            "extrainfo": "",
+            "created": "2000-01-01 00:00:00",
+            "trial": 0,
+            "showemail": "T",
+            "refer_count": 0,
+            "suspended": "N"
+        },
+        {
+            "user_id": 2,
+            "user_name": "user2",
+            "user_pass": "",
+            "pass_type": 1,
+            "pass_salt": "",
+            "last_login": "2002-01-01 00:00:00",
+            "bad_logins": 1,
+            "email": "foo2@bar.com",
+            "ntcnick": "",
+            "nickhistory": "",
+            "user_status": 1,
+            "change_date": "2001-01-01 00:00:00",
+            "change_user_id": 2,
+            "change_ip": "",
+            "email_used": 1,
+            "referrer": null,
+            "gg": "1234567890",
+            "extrainfo": "",
+            "created": "2000-01-01 00:00:00",
+            "trial": 0,
+            "showemail": "T",
+            "refer_count": 0,
+            "suspended": "N"
+        }
+    ]
+}
+
+
