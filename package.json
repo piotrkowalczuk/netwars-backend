@@ -1,0 +1,18 @@
+{
+    "name": "netwars-express",
+    "description": "Netwars",
+    "version": "0.0.1",
+    "private": true,
+    "devDependencies": {
+        "grunt": "~0.4.1",
+        "express": "3.3.x",
+        "pg": "2.2.x",
+        "request": "*",
+        "redis": "*",
+        "node-uuid": "*",
+        "knex": "0.x",
+        "moment": "2.x"
+    }
+}
+
+
