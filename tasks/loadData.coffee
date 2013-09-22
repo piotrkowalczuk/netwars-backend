@@ -18,8 +18,8 @@ module.exports = (grunt)->
         .insert(data, 'user_id')
         .exec (error, reply) ->
           if not error
-            console.log "#{data.length} object inerted"
+            grunt.log.ok "#{data.length} object inerted"
           else
-            console.log "Error ##{error.code}: #{error.detail}"
+            grunt.log.error "Error ##{error.code}: #{error.detail}"
           done()
 
