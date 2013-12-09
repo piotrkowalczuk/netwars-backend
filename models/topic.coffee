@@ -39,4 +39,3 @@ getBy = (fieldName, value, next) ->
 
 getById = (id, next) ->
   getBy('topic_id', id, next)
-s

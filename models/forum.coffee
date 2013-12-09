@@ -9,7 +9,7 @@ module.exports =
 
 getBy = (fieldName, value, next) ->
   db.postgres()
-    .from('users')
+    .from('forum')
     .select(
       'forum_id',
       'forum_name',
@@ -28,4 +28,3 @@ getBy = (fieldName, value, next) ->
 
 getById = (id, next) ->
   getBy('forum_id', id, next)
-s

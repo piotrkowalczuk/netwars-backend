@@ -8,6 +8,7 @@ getById = (req, res) ->
 
   forumId = req.params.id
   forum.getById forumId, (forum) =>
+    console.log forum
     if forum
       res.header "Content-Type", "application/json"
       res.send(forum)
