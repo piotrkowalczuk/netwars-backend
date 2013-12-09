@@ -1,0 +1,47 @@
+{
+    "table": "forum_topic",
+    "data":  [
+        {
+            "forum_id": 1,
+            "topic_id": 1,
+            "first_poster": 1,
+            "first_poster_name": "user1",
+            "last_poster": 0,
+            "last_poster_name": null,
+            "last_post_id": null,
+            "last_post_date": "2010-01-01 00:00:00",
+            "topic_posts": 0,
+            "topic_views": 999,
+            "topic_closed": 0,
+            "topic_pined": 0,
+            "topic_visible_from": "2009-01-01 00:00:00",
+            "topic_visible_to": null,
+            "topic_deleted": 0,
+            "change_date": null,
+            "change_user_id": null,
+            "change_ip": null
+        },
+        {
+            "forum_id": 1,
+            "topic_id": 2,
+            "first_poster": 1,
+            "first_poster_name": "user1",
+            "last_poster": 0,
+            "last_poster_name": null,
+            "last_post_id": null,
+            "last_post_date": "2010-01-01 00:00:00",
+            "topic_posts": 0,
+            "topic_views": 15,
+            "topic_closed": 0,
+            "topic_pined": 0,
+            "topic_visible_from": "2009-01-01 00:00:00",
+            "topic_visible_to": null,
+            "topic_deleted": 0,
+            "change_date": null,
+            "change_user_id": null,
+            "change_ip": null
+        }
+    ]
+}
+
+
