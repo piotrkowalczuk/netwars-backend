@@ -1,14 +1,15 @@
 package user
 
-import "github.com/gorilla/mux"
+import "github.com/codegangsta/martini"
 
-func CreateRoute(parentRoute *mux.Router) (childRoute *mux.Router) {
-	childRoute = parentRoute.PathPrefix("/user").Subrouter()
+func CreateRoute(m *martini.Martini) () {
 
-	childRoute.HandleFunc("/", create).Methods("POST")
-	childRoute.HandleFunc("/{id:[0-9]+}", read).Methods("GET")
-	childRoute.HandleFunc("/{id:[0-9]+}", update).Methods("PUT")
-	childRoute.HandleFunc("/{id:[0-9]+}", delete).Methods("DELETE")
+	userRoute := martini.NewRouter()
 
-	return
+	userRoute.Post("/user/", create)
+	userRoute.Get("/user/{id:[0-9]+}", read)
+	userRoute.Put("/user/{id:[0-9]+}", update)
+	userRoute.Delete("/user/{id:[0-9]+}", delete)
+
+	m.Action(userRoute.Handle)
 }

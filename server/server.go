@@ -2,25 +2,19 @@ package server
 
 import (
 	"github.com/daviddengcn/go-colortext"
-	"github.com/piotrkowalczuk/netwars-backend/database"
-	"net/http"
 	"log"
+	"github.com/codegangsta/martini"
 )
 
 func Run() {
-	database.InitPostgre()
 
-	router := CreateRoute()
+	m := martini.New()
 
-	http.Handle("/", router)
+	m.Use(martini.Logger())
+	m.Use(martini.Recovery())
 
-	server := &http.Server{
-		Addr: "127.0.0.1:3000",
-	}
+	CreateRoute(m)
 
-	ct.ChangeColor(ct.Yellow, false, ct.None, false)
-	log.Println("Listening on port 3000.")
+	m.Run()
 
-	ct.ChangeColor(ct.Red, false, ct.None, false)
-	log.Fatal(server.ListenAndServe())
 }

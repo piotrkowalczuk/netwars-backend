@@ -2,12 +2,11 @@ package server
 
 import (
 	"github.com/piotrkowalczuk/netwars-backend/user"
-	"github.com/gorilla/mux"
+	"github.com/codegangsta/martini"
 )
 
-func CreateRoute() (*mux.Router) {
-	router := mux.NewRouter()
-	user.CreateRoute(router)
+func CreateRoute(m *martini.Martini) () {
 
-	return router
+  	user.CreateRoute(m)
+
 }
