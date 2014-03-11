@@ -3,13 +3,12 @@ package user
 import "github.com/codegangsta/martini"
 
 func CreateRoute(m *martini.Martini) () {
+	childRoute := martini.NewRouter()
 
-	userRoute := martini.NewRouter()
+	childRoute.Post("/user/", create)
+	childRoute.Get("/user/:id", read)
+	childRoute.Put("/user/:id", update)
+	childRoute.Delete("/user/:id", delete)
 
-	userRoute.Post("/user/", create)
-	userRoute.Get("/user/:id", read)
-	userRoute.Put("/user/:id", update)
-	userRoute.Delete("/user/:id", delete)
-
-	m.Action(userRoute.Handle)
+	m.Action(childRoute.Handle)
 }

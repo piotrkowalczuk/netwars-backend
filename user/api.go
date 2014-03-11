@@ -1,11 +1,12 @@
 package user
 
 import (
+	"github.com/coopernurse/gorp"
+	"github.com/codegangsta/martini"
 	"net/http"
 	"log"
 	"strconv"
 	"encoding/json"
-	"github.com/gorilla/mux"
 )
 
 func create(w http.ResponseWriter, r *http.Request) {
@@ -13,14 +14,13 @@ func create(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(r.URL.Path))
 }
 
-func read(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["id"])
+func read(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, params martini.Params) {
+	id, err := strconv.Atoi(params["id"])
 
-	repository := NewUserRepository()
-	user := repository.FindOne(id)
+	user, err := dbMap.Get(User{}, id)
 
-	if user == nil {
+	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
