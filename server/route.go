@@ -6,7 +6,5 @@ import (
 )
 
 func CreateRoute(m *martini.Martini) () {
-
   	user.CreateRoute(m)
-
 }
