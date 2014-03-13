@@ -39,3 +39,21 @@ func delete(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL.Path)
 	w.Write([]byte(r.URL.Path))
 }
+
+func login(credentials Credentials, w http.ResponseWriter, req *http.Request, dbMap *gorp.DbMap) {
+	var user User
+
+	/*
+	Naive implementation
+	 */
+	dbMap.SelectOne(
+		&user,
+		"SELECT * FROM users as u WHERE u.email = $1 AND u.user_pass = $2",
+		credentials.Email,
+		credentials.Password,
+	)
+
+	data, _ := json.Marshal(user)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(data)
+}

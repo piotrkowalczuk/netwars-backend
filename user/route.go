@@ -1,14 +1,15 @@
 package user
 
-import "github.com/codegangsta/martini"
+import (
+	"github.com/codegangsta/martini"
+	"github.com/martini-contrib/binding"
+)
 
-func CreateRoute(m *martini.Martini) () {
-	childRoute := martini.NewRouter()
+func CreateRoute(router martini.Router) () {
+	router.Post("/user", AuthenticationMiddleware, create)
+	router.Get("/user/:id", AuthenticationMiddleware, read)
+	router.Put("/user/:id", AuthenticationMiddleware, update)
+	router.Delete("/user/:id", AuthenticationMiddleware, delete)
 
-	childRoute.Post("/user/", create)
-	childRoute.Get("/user/:id", read)
-	childRoute.Put("/user/:id", update)
-	childRoute.Delete("/user/:id", delete)
-
-	m.Action(childRoute.Handle)
+	router.Post("/login", binding.Json(Credentials{}), login)
 }

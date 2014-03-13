@@ -26,6 +26,10 @@ func main() {
 }
 
 func InitRoute(m *martini.Martini) () {
-	user.CreateRoute(m)
+	router := martini.NewRouter()
+
+	user.CreateRoute(router)
+
+	m.Action(router.Handle)
 }
 
