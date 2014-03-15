@@ -11,12 +11,12 @@ import (
 	"encoding/json"
 )
 
-func create(w http.ResponseWriter, r *http.Request) {
+func createHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL.Path)
 	w.Write([]byte(r.URL.Path))
 }
 
-func read(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, params martini.Params) {
+func readHandler(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, params martini.Params) {
 	id, err := strconv.Atoi(params["id"])
 
 	user, err := dbMap.Get(User{}, id)
@@ -32,17 +32,17 @@ func read(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, params mart
 	w.Write(data)
 }
 
-func update(w http.ResponseWriter, r *http.Request) {
+func updateHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL.Path)
 	w.Write([]byte(r.URL.Path))
 }
 
-func delete(w http.ResponseWriter, r *http.Request) {
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL.Path)
 	w.Write([]byte(r.URL.Path))
 }
 
-func login(credentials LoginCredentials, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) {
+func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) {
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
@@ -71,7 +71,7 @@ func login(credentials LoginCredentials, r render.Render, redisPool *redis.Pool,
 	r.JSON(http.StatusOK, userSession)
 }
 
-func logout(apiCredentials APICredentials, r render.Render, redisPool *redis.Pool) string {
+func logoutHandler(apiCredentials APICredentials, r render.Render, redisPool *redis.Pool) string {
 
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
