@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/coopernurse/gorp"
 	"github.com/codegangsta/martini"
+	"github.com/garyburd/redigo/redis"
 	"net/http"
 	"log"
 	"strconv"
@@ -40,20 +41,33 @@ func delete(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(r.URL.Path))
 }
 
-func login(credentials Credentials, w http.ResponseWriter, req *http.Request, dbMap *gorp.DbMap) {
+func login(credentials Credentials, w http.ResponseWriter, redisPool *redis.Pool, dbMap *gorp.DbMap, req *http.Request) {
+	redisConnection := redisPool.Get()
+	defer redisConnection.Close()
+
 	var user User
 
 	/*
 	Naive implementation
 	 */
-	dbMap.SelectOne(
+	err := dbMap.SelectOne(
 		&user,
 		"SELECT * FROM users as u WHERE u.email = $1 AND u.user_pass = $2",
 		credentials.Email,
 		credentials.Password,
 	)
 
-	data, _ := json.Marshal(user)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	userSession := NewUserSession(&user)
+
+	responseData, _ := json.Marshal(userSession)
+
+	userId, _ := userSession.Id.Value()
+	redisConnection.Send("SET", userId, responseData)
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write(data)
+	w.Write(responseData)
 }

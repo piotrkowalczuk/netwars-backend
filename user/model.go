@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/nu7hatch/gouuid"
 	"database/sql"
 	"time"
 )
@@ -29,6 +30,35 @@ type User struct {
 	ChangeAt *time.Time `db:"change_date", json:"changeAt"`
 	LoginAt *time.Time `db:"last_login", json:"loginAt"`
 	CreatedAt *time.Time `db:"created", json:"createdAt"`
+}
+
+type UserSession struct {
+	Id sql.NullInt64 `db:"user_id", json:"id"`
+	Name string `db:"user_name", json:"name"`
+	Email sql.NullString `db:"email", json:"email"`
+	Trial *uint16 `db:"trial", json:"trial"`
+	Token string `db:"-", json:"token"`
+	Suspended sql.NullString `db:"suspended", json:"suspended"`
+	ChangeAt *time.Time `db:"change_date", json:"changeAt"`
+	LoginAt *time.Time `db:"last_login", json:"loginAt"`
+	CreatedAt *time.Time `db:"created", json:"createdAt"`
+}
+
+func NewUserSession(user *User) (userSession *UserSession) {
+	token, _ := uuid.NewV4()
+	userSession = &UserSession{
+		user.Id,
+		user.Name,
+		user.Email,
+		user.Trial,
+		token.String(),
+		user.Suspended,
+		user.ChangeAt,
+		user.LoginAt,
+		user.CreatedAt,
+	}
+
+	return
 }
 
 type Credentials struct {

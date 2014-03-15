@@ -21,7 +21,7 @@ func main() {
 	m.Map(dbMap)
 
 	InitRoute(m)
-
+	database.InitializeRedis(m)
 	m.Run()
 }
 
