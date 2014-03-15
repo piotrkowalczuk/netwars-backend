@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/coopernurse/gorp"
 	"github.com/codegangsta/martini"
+	"github.com/codegangsta/martini-contrib/render"
 	"github.com/garyburd/redigo/redis"
 	"net/http"
 	"log"
@@ -41,7 +42,7 @@ func delete(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(r.URL.Path))
 }
 
-func login(credentials Credentials, w http.ResponseWriter, redisPool *redis.Pool, dbMap *gorp.DbMap, req *http.Request) {
+func login(credentials LoginCredentials, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) {
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
@@ -58,16 +59,41 @@ func login(credentials Credentials, w http.ResponseWriter, redisPool *redis.Pool
 	)
 
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		r.Error(http.StatusNotFound)
 	}
 
 	userSession := NewUserSession(&user)
 
 	responseData, _ := json.Marshal(userSession)
 
-	userId, _ := userSession.Id.Value()
-	redisConnection.Send("SET", userId, responseData)
+	redisConnection.Do("SET", userSession.Id, responseData)
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write(responseData)
+	r.JSON(http.StatusOK, userSession)
+}
+
+func logout(apiCredentials APICredentials, r render.Render, redisPool *redis.Pool) string {
+
+	redisConnection := redisPool.Get()
+	defer redisConnection.Close()
+
+	userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.Id))
+
+	if err != nil {
+		r.Error(http.StatusNotFound)
+		return "Not Found"
+	}
+
+	var userSession UserSession
+	json.Unmarshal(userSessionBytes, &userSession)
+
+	if userSession.Token == apiCredentials.Token {
+		redisConnection.Do("DEL", apiCredentials.Id)
+		r.Error(http.StatusOK)
+		return "Logged out"
+	} else {
+		log.Println(userSession)
+		log.Println(apiCredentials.Token)
+		r.Error(http.StatusUnauthorized)
+		return "Forbidden"
+	}
 }

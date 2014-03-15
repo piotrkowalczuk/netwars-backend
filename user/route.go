@@ -11,5 +11,6 @@ func CreateRoute(router martini.Router) () {
 	router.Put("/user/:id", AuthenticationMiddleware, update)
 	router.Delete("/user/:id", AuthenticationMiddleware, delete)
 
-	router.Post("/login", binding.Json(Credentials{}), login)
+	router.Post("/login", binding.Json(LoginCredentials{}), login)
+	router.Post("/logout", binding.Json(APICredentials{}), logout)
 }
