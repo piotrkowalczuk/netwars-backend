@@ -41,6 +41,21 @@ func getTopicsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params)
 	return ""
 }
 
+func getTopicHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) string {
+	topicId, _ := strconv.Atoi(params["id"])
+	var topic Topic
+
+	err := dbMap.SelectOne(&topic, "SELECT * FROM forum_topic WHERE topic_id = $1", topicId)
+
+	if err != nil {
+		r.Error(http.StatusNotFound)
+		return ""
+	}
+
+	r.JSON(http.StatusOK, &topic)
+	return ""
+}
+
 func getPostsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) string {
 	topicId, _ := strconv.Atoi(params["topicId"])
 	var posts []Post
