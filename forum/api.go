@@ -33,7 +33,6 @@ func getTopicsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params)
 	_, err := dbMap.Select(&topics, "SELECT * FROM forum_topic WHERE forum_id = $1", forumId)
 
 	if err != nil {
-		panic(err)
 		r.Error(http.StatusNotFound)
 	}
 
