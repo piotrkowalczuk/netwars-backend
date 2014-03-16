@@ -41,12 +41,12 @@ type Post struct {
 	Id sqlutil.NullInt64 `db:"post_id" json:"id"`
 	TopicId sqlutil.NullInt64 `db:"topic_id" json:"topicId"`
 	AuthorId sqlutil.NullInt64 `db:"user_id" json:"authorId"`
-	AuthorName sqlutil.NullString `db:"first_poster_name" json:"authorName"`
+	AuthorName sqlutil.NullString `db:"user_name" json:"authorName"`
 	AuthorIP sqlutil.NullString `db:"ip_address" json:"authorIP"`
 	CreatedAt *time.Time `db:"post_date" json:"createdAt"`
 	Content sqlutil.NullString `db:"post_body" json:"content"`
 	NbOfChanges sqlutil.NullInt64 `db:"mod_counter" json:"nbOfChanges"`
-	ChangeAt *time.Time `db:"change_date" json:"changeAt"`
-	ChangerId sqlutil.NullInt64 `db:"change_user_id" json:"changerId"`
+	ChangeAt *time.Time `db:"mod_date" json:"changeAt"`
+	ChangerId sqlutil.NullInt64 `db:"mod_user_id" json:"changerId"`
 	ChangerName sqlutil.NullString `db:"mod_user_name" json:"changerName"`
 }
