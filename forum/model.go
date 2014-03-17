@@ -6,7 +6,7 @@ import (
 )
 
 type Forum struct {
-	Id sqlutil.NullInt64 `db:"forum_id" json:"id"`
+	Id int64 `db:"forum_id" json:"id"`
 	Name sqlutil.NullString `db:"forum_name" json:"name"`
 	Description sqlutil.NullString `db:"forum_desc" json:"description"`
 	Order sqlutil.NullInt64 `db:"forum_order" json:"order"`
@@ -16,7 +16,7 @@ type Forum struct {
 }
 
 type Topic struct {
-	Id sqlutil.NullInt64 `db:"topic_id" json:"id"`
+	Id int64 `db:"topic_id" json:"id"`
 	ForumId sqlutil.NullInt64 `db:"forum_id" json:"forumId"`
 	Name sqlutil.NullString `db:"topic_name" json:"name"`
 	AuthorId sqlutil.NullInt64 `db:"first_poster" json:"authorId"`
@@ -38,13 +38,13 @@ type Topic struct {
 }
 
 type Post struct {
-	Id sqlutil.NullInt64 `db:"post_id" json:"id"`
-	TopicId sqlutil.NullInt64 `db:"topic_id" json:"topicId"`
+	Id int64 `db:"post_id" json:"id"`
+	TopicId int64 `db:"topic_id" json:"topicId"`
 	AuthorId sqlutil.NullInt64 `db:"user_id" json:"authorId"`
 	AuthorName sqlutil.NullString `db:"user_name" json:"authorName"`
 	AuthorIP sqlutil.NullString `db:"ip_address" json:"authorIP"`
 	CreatedAt *time.Time `db:"post_date" json:"createdAt"`
-	Content sqlutil.NullString `db:"post_body" json:"content"`
+	Content *string `db:"post_body" json:"content"`
 	NbOfChanges sqlutil.NullInt64 `db:"mod_counter" json:"nbOfChanges"`
 	ChangeAt *time.Time `db:"mod_date" json:"changeAt"`
 	ChangerId sqlutil.NullInt64 `db:"mod_user_id" json:"changerId"`

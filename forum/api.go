@@ -2,15 +2,19 @@ package forum
 
 import (
 	"github.com/codegangsta/martini-contrib/render"
+	"github.com/piotrkowalczuk/netwars-backend/user"
 	"github.com/codegangsta/martini"
 	"github.com/coopernurse/gorp"
-	"log"
+	"github.com/garyburd/redigo/redis"
 	"net/http"
+	"net"
 	"strconv"
+	"time"
+	"encoding/json"
 )
 
-func getForumHandler(r render.Render, dbMap *gorp.DbMap) {
-	log.Println("getForumHandler")
+func getForumHandler(r render.Render) {
+	r.Error(http.StatusNotImplemented)
 }
 
 func getForumsHandler(r render.Render, dbMap *gorp.DbMap) {
@@ -63,7 +67,6 @@ func getPostsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) 
 	_, err := dbMap.Select(&posts, "SELECT * FROM forum_post WHERE topic_id = $1", topicId)
 
 	if err != nil {
-		panic(err)
 		r.Error(http.StatusNotFound)
 		return ""
 	}
@@ -71,3 +74,40 @@ func getPostsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) 
 	r.JSON(http.StatusOK, &posts)
 	return ""
 }
+
+func postPostHandler(post Post, apiCredentials user.APICredentials, req *http.Request, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) string {
+	redisConnection := redisPool.Get()
+	defer redisConnection.Close()
+
+	userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.Id))
+	var userSession user.UserSession
+	json.Unmarshal(userSessionBytes, &userSession)
+
+	now := time.Now()
+
+	post.ChangeAt = &now
+	post.CreatedAt = &now
+	post.AuthorId.Int64 = userSession.Id
+	post.AuthorName.String = userSession.Name
+	post.AuthorId.Valid = true
+	post.AuthorName.Valid = true
+	post.AuthorIP.Valid = true
+	post.AuthorIP.String, _, _ = net.SplitHostPort(req.RemoteAddr)
+
+	err = dbMap.Insert(&post)
+
+	if err != nil {
+		r.Error(http.StatusInternalServerError)
+		return ""
+	}
+
+	r.JSON(http.StatusOK, &post)
+	return ""
+}
+
+func postTopicHandler(topic Topic, req *http.Request, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) string {
+	r.Error(http.StatusNotImplemented)
+	return ""
+}
+
+

@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	Id  sqlutil.NullInt64 `db:"user_id" json:"id"`
+	Id  int64 `db:"user_id" json:"id"`
 	Name string `db:"user_name" json:"name"`
 	Password string `db:"user_pass" json:"password"`
 	PasswordSalt string `db:"pass_salt" json:"passwordSalt"`
@@ -48,7 +48,7 @@ func NewUserSession(user *User) (userSession *UserSession) {
 	token, _ := uuid.NewV4()
 
 	userSession = &UserSession{
-		*&user.Id.Int64,
+		*&user.Id,
 		user.Name,
 		&user.Email.String,
 		user.Trial,
@@ -63,8 +63,8 @@ func NewUserSession(user *User) (userSession *UserSession) {
 }
 
 type APICredentials struct {
-	Id int64 `json:"id"`
-	Token string `json:"token"`
+	Id int64 `form:"id" json:"id"`
+	Token string `form:"token" json:"token"`
 }
 
 type LoginCredentials struct {

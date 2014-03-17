@@ -21,6 +21,7 @@ func main() {
 	dbMap.AddTableWithName(user.User{}, "users").SetKeys(true, "user_id")
 	dbMap.AddTableWithName(forum.Forum{}, "forum").SetKeys(true, "forum_id")
 	dbMap.AddTableWithName(forum.Topic{}, "forum_topic").SetKeys(true, "topic_id")
+	dbMap.AddTableWithName(forum.Post{}, "forum_post").SetKeys(true, "post_id")
 
 	dbMap.TraceOn("[gorp]", log.New(os.Stdout, "netwars:", log.Lmicroseconds))
 

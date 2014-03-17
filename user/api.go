@@ -42,6 +42,10 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(r.URL.Path))
 }
 
+func registerHandler(user User, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) {
+
+}
+
 func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) {
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
@@ -72,7 +76,6 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 }
 
 func logoutHandler(apiCredentials APICredentials, r render.Render, redisPool *redis.Pool) string {
-
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
