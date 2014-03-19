@@ -13,12 +13,21 @@ import (
 	"encoding/json"
 )
 
-func getForumHandler(r render.Render) {
-	r.Error(http.StatusNotImplemented)
+func getForumHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) {
+	forumId, _ := strconv.Atoi(params["id"])
+
+	var forum Forum
+
+	err := dbMap.SelectOne(&forum, "SELECT * FROM forum WHERE forum_id = $1", forumId)
+
+	if err != nil {
+		r.Error(http.StatusNotFound)
+	}
+
+	r.JSON(http.StatusOK, &forum)
 }
 
 func getForumsHandler(r render.Render, dbMap *gorp.DbMap) {
-
 	var forums []Forum
 
 	_, err := dbMap.Select(&forums, "SELECT * FROM forum")
@@ -105,8 +114,42 @@ func postPostHandler(post Post, apiCredentials user.APICredentials, req *http.Re
 	return ""
 }
 
-func postTopicHandler(topic Topic, req *http.Request, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) string {
-	r.Error(http.StatusNotImplemented)
+func postTopicHandler(createTopicRequest CreateTopicRequest, apiCredentials user.APICredentials, req *http.Request, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) string {
+	redisConnection := redisPool.Get()
+	defer redisConnection.Close()
+
+	userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.Id))
+	var userSession user.UserSession
+	json.Unmarshal(userSessionBytes, &userSession)
+
+	now := time.Now()
+
+	createTopicRequest.Topic.ChangeAt = &now
+	createTopicRequest.Topic.AuthorId.Int64 = userSession.Id
+	createTopicRequest.Topic.AuthorName.String = userSession.Name
+	createTopicRequest.Topic.AuthorId.Valid = true
+	createTopicRequest.Topic.AuthorName.Valid = true
+
+	err = dbMap.Insert(&createTopicRequest.Topic)
+
+	createTopicRequest.Post.ChangeAt = &now
+	createTopicRequest.Post.CreatedAt = &now
+	createTopicRequest.Post.TopicId = createTopicRequest.Topic.Id
+	createTopicRequest.Post.AuthorId.Int64 = userSession.Id
+	createTopicRequest.Post.AuthorName.String = userSession.Name
+	createTopicRequest.Post.AuthorId.Valid = true
+	createTopicRequest.Post.AuthorName.Valid = true
+	createTopicRequest.Post.AuthorIP.Valid = true
+	createTopicRequest.Post.AuthorIP.String, _, _ = net.SplitHostPort(req.RemoteAddr)
+
+	err = dbMap.Insert(&createTopicRequest.Post)
+
+	if err != nil {
+		r.Error(http.StatusInternalServerError)
+		return ""
+	}
+
+	r.JSON(http.StatusOK, &createTopicRequest.Topic)
 	return ""
 }
 

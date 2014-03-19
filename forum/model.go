@@ -17,8 +17,8 @@ type Forum struct {
 
 type Topic struct {
 	Id int64 `db:"topic_id" json:"id"`
-	ForumId sqlutil.NullInt64 `db:"forum_id" json:"forumId"`
-	Name sqlutil.NullString `db:"topic_name" json:"name"`
+	ForumId int64 `db:"forum_id" json:"forumId"`
+	Name *string `db:"topic_name" json:"name"`
 	AuthorId sqlutil.NullInt64 `db:"first_poster" json:"authorId"`
 	AuthorName sqlutil.NullString `db:"first_poster_name" json:"authorName"`
 	LastPostAutorId sqlutil.NullInt64 `db:"last_poster" json:"lastPostAutorId"`
@@ -49,4 +49,9 @@ type Post struct {
 	ChangeAt *time.Time `db:"mod_date" json:"changeAt"`
 	ChangerId sqlutil.NullInt64 `db:"mod_user_id" json:"changerId"`
 	ChangerName sqlutil.NullString `db:"mod_user_name" json:"changerName"`
+}
+
+type CreateTopicRequest struct {
+	Post Post `json:"post"`
+	Topic Topic `json:"topic"`
 }

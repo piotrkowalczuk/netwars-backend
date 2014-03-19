@@ -20,7 +20,7 @@ func CreateRoute(router martini.Router) () {
 	)
 	router.Post(
 		"/topic",
-		binding.Json(Topic{}),
+		binding.Json(CreateTopicRequest{}),
 		binding.Form(user.APICredentials{}),
 		postTopicHandler,
 	)

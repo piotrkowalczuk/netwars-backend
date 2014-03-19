@@ -29,4 +29,5 @@ func CreateRoute(router martini.Router) () {
 
 	router.Post("/login", binding.Json(LoginCredentials{}), loginHandler)
 	router.Post("/logout", binding.Json(APICredentials{}), logoutHandler)
+	router.Post("/register", binding.Json(User{}), logoutHandler)
 }
