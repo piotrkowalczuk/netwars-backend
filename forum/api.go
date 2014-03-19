@@ -127,8 +127,12 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, apiCredentials user
 	createTopicRequest.Topic.ChangeAt = &now
 	createTopicRequest.Topic.AuthorId.Int64 = userSession.Id
 	createTopicRequest.Topic.AuthorName.String = userSession.Name
+	createTopicRequest.Topic.LastPostAuthorId.Int64 = userSession.Id
+	createTopicRequest.Topic.LastPostAuthorName.String = userSession.Name
 	createTopicRequest.Topic.AuthorId.Valid = true
 	createTopicRequest.Topic.AuthorName.Valid = true
+	createTopicRequest.Topic.LastPostAuthorId.Valid = true
+	createTopicRequest.Topic.LastPostAuthorName.Valid = true
 
 	err = dbMap.Insert(&createTopicRequest.Topic)
 
@@ -143,6 +147,11 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, apiCredentials user
 	createTopicRequest.Post.AuthorIP.String, _, _ = net.SplitHostPort(req.RemoteAddr)
 
 	err = dbMap.Insert(&createTopicRequest.Post)
+
+	createTopicRequest.Topic.LastPostDate = &now
+	createTopicRequest.Topic.LastPostId.Int64 = createTopicRequest.Post.Id
+
+	_, err = dbMap.Update(&createTopicRequest.Topic)
 
 	if err != nil {
 		r.Error(http.StatusInternalServerError)

@@ -21,8 +21,8 @@ type Topic struct {
 	Name *string `db:"topic_name" json:"name"`
 	AuthorId sqlutil.NullInt64 `db:"first_poster" json:"authorId"`
 	AuthorName sqlutil.NullString `db:"first_poster_name" json:"authorName"`
-	LastPostAutorId sqlutil.NullInt64 `db:"last_poster" json:"lastPostAutorId"`
-	LastPostAutorName sqlutil.NullString `db:"last_poster_name" json:"lastPostAutorName"`
+	LastPostAuthorId sqlutil.NullInt64 `db:"last_poster" json:"lastPostAuthorId"`
+	LastPostAuthorName sqlutil.NullString `db:"last_poster_name" json:"lastPostAuthorName"`
 	LastPostId sqlutil.NullInt64 `db:"last_post_id" json:"lastPostId"`
 	LastPostDate *time.Time `db:"last_post_date" json:"lastPostDate"`
 	NbOfPosts sqlutil.NullInt64 `db:"topic_posts" json:"nbOfPosts"`
