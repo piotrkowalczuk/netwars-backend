@@ -26,7 +26,7 @@ type Topic struct {
 	LastPostId sqlutil.NullInt64 `db:"last_post_id" json:"lastPostId"`
 	LastPostDate *time.Time `db:"last_post_date" json:"lastPostDate"`
 	NbOfPosts sqlutil.NullInt64 `db:"topic_posts" json:"nbOfPosts"`
-	NbOfViews sqlutil.NullInt64 `db:"topic_views" json:"obOfViews"`
+	NbOfViews sqlutil.NullInt64 `db:"topic_views" json:"nbOfViews"`
 	IsClosed *int16 `db:"topic_closed" json:"isClosed"`
 	IsPinned *int16 `db:"topic_pined" json:"isPinned"`
 	IsDeleted *int16 `db:"topic_deleted" json:"isDeleted"`

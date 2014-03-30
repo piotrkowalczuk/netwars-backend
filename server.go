@@ -19,6 +19,7 @@ func main() {
 
 	dbMap := database.InitializeGorp()
 	dbMap.AddTableWithName(user.User{}, "users").SetKeys(true, "user_id")
+	dbMap.AddTableWithName(user.SecureUser{}, "users").SetKeys(true, "user_id")
 	dbMap.AddTableWithName(forum.Forum{}, "forum").SetKeys(true, "forum_id")
 	dbMap.AddTableWithName(forum.Topic{}, "forum_topic").SetKeys(true, "topic_id")
 	dbMap.AddTableWithName(forum.Post{}, "forum_post").SetKeys(true, "post_id")

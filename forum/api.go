@@ -6,6 +6,8 @@ import (
 	"github.com/codegangsta/martini"
 	"github.com/coopernurse/gorp"
 	"github.com/garyburd/redigo/redis"
+	"github.com/modcloth/sqlutil"
+	"database/sql"
 	"net/http"
 	"net"
 	"strconv"
@@ -43,7 +45,7 @@ func getTopicsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params)
 	forumId, _ := strconv.Atoi(params["forumId"])
 	var topics []Topic
 
-	_, err := dbMap.Select(&topics, "SELECT * FROM forum_topic WHERE forum_id = $1", forumId)
+	_, err := dbMap.Select(&topics, "SELECT * FROM forum_topic WHERE forum_id = $1 ORDER BY last_post_date DESC", forumId)
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
@@ -88,22 +90,32 @@ func postPostHandler(post Post, apiCredentials user.APICredentials, req *http.Re
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
-	userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.Id))
 	var userSession user.UserSession
-	json.Unmarshal(userSessionBytes, &userSession)
+	var topic Topic
 
 	now := time.Now()
 
+	userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.Id))
+	json.Unmarshal(userSessionBytes, &userSession)
+
+	err = dbMap.SelectOne(&topic, "SELECT * FROM forum_topic WHERE topic_id = $1", post.TopicId)
+
 	post.ChangeAt = &now
 	post.CreatedAt = &now
-	post.AuthorId.Int64 = userSession.Id
-	post.AuthorName.String = userSession.Name
-	post.AuthorId.Valid = true
-	post.AuthorName.Valid = true
+	post.AuthorId = sqlutil.NullInt64{sql.NullInt64{userSession.Id, true}}
+	post.AuthorName = sqlutil.NullString{sql.NullString{userSession.Name, true}}
 	post.AuthorIP.Valid = true
 	post.AuthorIP.String, _, _ = net.SplitHostPort(req.RemoteAddr)
 
 	err = dbMap.Insert(&post)
+
+	topic.NbOfPosts.Int64 += 1
+	topic.LastPostDate = &now
+	topic.LastPostId = sqlutil.NullInt64{sql.NullInt64{post.Id, true}}
+	topic.LastPostAuthorId = sqlutil.NullInt64{sql.NullInt64{userSession.Id, true}}
+	topic.LastPostAuthorName = sqlutil.NullString{sql.NullString{userSession.Name, true}}
+
+	_, err = dbMap.Update(&topic)
 
 	if err != nil {
 		r.Error(http.StatusInternalServerError)
@@ -125,24 +137,20 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, apiCredentials user
 	now := time.Now()
 
 	createTopicRequest.Topic.ChangeAt = &now
-	createTopicRequest.Topic.AuthorId.Int64 = userSession.Id
-	createTopicRequest.Topic.AuthorName.String = userSession.Name
-	createTopicRequest.Topic.LastPostAuthorId.Int64 = userSession.Id
-	createTopicRequest.Topic.LastPostAuthorName.String = userSession.Name
-	createTopicRequest.Topic.AuthorId.Valid = true
-	createTopicRequest.Topic.AuthorName.Valid = true
-	createTopicRequest.Topic.LastPostAuthorId.Valid = true
-	createTopicRequest.Topic.LastPostAuthorName.Valid = true
+	createTopicRequest.Topic.AuthorId = sqlutil.NullInt64{sql.NullInt64{userSession.Id, true}}
+	createTopicRequest.Topic.AuthorName = sqlutil.NullString{sql.NullString{userSession.Name, true}}
+	createTopicRequest.Topic.LastPostAuthorId = sqlutil.NullInt64{sql.NullInt64{userSession.Id, true}}
+	createTopicRequest.Topic.LastPostAuthorName = sqlutil.NullString{sql.NullString{userSession.Name, true}}
+	createTopicRequest.Topic.NbOfPosts = sqlutil.NullInt64{sql.NullInt64{1, true}}
+	createTopicRequest.Topic.NbOfViews = sqlutil.NullInt64{sql.NullInt64{0, true}}
 
 	err = dbMap.Insert(&createTopicRequest.Topic)
 
 	createTopicRequest.Post.ChangeAt = &now
 	createTopicRequest.Post.CreatedAt = &now
 	createTopicRequest.Post.TopicId = createTopicRequest.Topic.Id
-	createTopicRequest.Post.AuthorId.Int64 = userSession.Id
-	createTopicRequest.Post.AuthorName.String = userSession.Name
-	createTopicRequest.Post.AuthorId.Valid = true
-	createTopicRequest.Post.AuthorName.Valid = true
+	createTopicRequest.Post.AuthorId = sqlutil.NullInt64{sql.NullInt64{userSession.Id, true}}
+	createTopicRequest.Post.AuthorName = sqlutil.NullString{sql.NullString{userSession.Name, true}}
 	createTopicRequest.Post.AuthorIP.Valid = true
 	createTopicRequest.Post.AuthorIP.String, _, _ = net.SplitHostPort(req.RemoteAddr)
 

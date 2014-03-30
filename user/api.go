@@ -11,15 +11,10 @@ import (
 	"encoding/json"
 )
 
-func createHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL.Path)
-	w.Write([]byte(r.URL.Path))
-}
-
-func readHandler(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, params martini.Params) {
+func getUserHandler(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, params martini.Params) {
 	id, err := strconv.Atoi(params["id"])
 
-	user, err := dbMap.Get(User{}, id)
+	user, err := dbMap.Get(SecureUser{}, id)
 
 	if err != nil {
 		log.Println(err)
@@ -32,18 +27,15 @@ func readHandler(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, para
 	w.Write(data)
 }
 
-func updateHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL.Path)
-	w.Write([]byte(r.URL.Path))
-}
+func registerHandler(user User, r render.Render, dbMap *gorp.DbMap) {
+	log.Println(user.Email)
+	err := dbMap.Insert(&user)
 
-func deleteHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL.Path)
-	w.Write([]byte(r.URL.Path))
-}
-
-func registerHandler(user User, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) {
-
+	if err != nil {
+		r.Error(http.StatusNotFound)
+	} else {
+		r.JSON(http.StatusOK, map[string]interface{}{})
+	}
 }
 
 func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redis.Pool, dbMap *gorp.DbMap) {
@@ -63,6 +55,7 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 	)
 
 	if err != nil {
+		panic(credentials)
 		r.Error(http.StatusNotFound)
 	}
 
@@ -94,8 +87,6 @@ func logoutHandler(apiCredentials APICredentials, r render.Render, redisPool *re
 		r.Error(http.StatusOK)
 		return "Logged out"
 	} else {
-		log.Println(userSession)
-		log.Println(apiCredentials.Token)
 		r.Error(http.StatusUnauthorized)
 		return "Forbidden"
 	}
