@@ -7,17 +7,22 @@ import (
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/codegangsta/martini"
 	"log"
+	"net/http"
 	"os"
 )
 
 func main() {
+	config := ReadConfiguration()
+
 	m := martini.New()
 
 	m.Use(martini.Logger())
 	m.Use(martini.Recovery())
 	m.Use(render.Renderer())
 
-	dbMap := database.InitializeGorp()
+	redisPool := database.InitializeRedis(config.Redis)
+
+	dbMap := database.InitializeGorp(config.Postgre)
 	dbMap.AddTableWithName(user.User{}, "users").SetKeys(true, "user_id")
 	dbMap.AddTableWithName(user.SecureUser{}, "users").SetKeys(true, "user_id")
 	dbMap.AddTableWithName(forum.Forum{}, "forum").SetKeys(true, "forum_id")
@@ -27,10 +32,12 @@ func main() {
 	dbMap.TraceOn("[gorp]", log.New(os.Stdout, "netwars:", log.Lmicroseconds))
 
 	m.Map(dbMap)
+	m.Map(redisPool)
 
 	InitRoute(m)
-	database.InitializeRedis(m)
-	m.Run()
+
+	log.Println("listening on " + config.Server.Host + ":" + config.Server.Port)
+	log.Fatalln(http.ListenAndServe(config.Server.Host+":"+config.Server.Port, m))
 }
 
 func InitRoute(m *martini.Martini) () {

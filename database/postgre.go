@@ -7,8 +7,8 @@ import (
 )
 
 
-func InitializeGorp() *gorp.DbMap {
-	db, _ := sql.Open("postgres", "postgres://postgres:postgres.123@localhost/netwars-org?sslmode=disable")
+func InitializeGorp(config PostgreConfig) *gorp.DbMap {
+	db, _ := sql.Open("postgres", config.ConnectionString)
 
 	dbMap := &gorp.DbMap{Db: db, Dialect: gorp.PostgresDialect{}}
 

@@ -6,18 +6,15 @@ import (
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/garyburd/redigo/redis"
 	"net/http"
-	"log"
 	"strconv"
 	"encoding/json"
 )
 
 func getUserHandler(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, params martini.Params) {
 	id, err := strconv.Atoi(params["id"])
-
 	user, err := dbMap.Get(SecureUser{}, id)
 
 	if err != nil {
-		log.Println(err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -28,7 +25,6 @@ func getUserHandler(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, p
 }
 
 func registerHandler(user User, r render.Render, dbMap *gorp.DbMap) {
-	log.Println(user.Email)
 	err := dbMap.Insert(&user)
 
 	if err != nil {
@@ -55,7 +51,6 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 	)
 
 	if err != nil {
-		panic(credentials)
 		r.Error(http.StatusNotFound)
 	}
 
