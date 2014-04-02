@@ -9,7 +9,7 @@
     <redis>
         <address>:6379</address>
     </redis>
-    <postgres>
+    <postgre>
         <connectionString>postgres://postgres:postgres.123@localhost/netwars?sslmode=disable</connectionString>
-    </postgres>
+    </postgre>
 </config>

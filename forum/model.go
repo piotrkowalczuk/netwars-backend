@@ -2,6 +2,7 @@ package forum
 
 import (
 	"github.com/modcloth/sqlutil"
+	"unicode/utf8"
 	"time"
 )
 
@@ -51,7 +52,31 @@ type Post struct {
 	ChangerName sqlutil.NullString `db:"mod_user_name" json:"changerName"`
 }
 
+type CreatePostRequest struct {
+	Post Post `json:"post"`
+}
+
+func (self *CreatePostRequest) isValid() (isValid bool) {
+	isValid = true
+
+	if utf8.RuneCountInString(*self.Post.Content) < 3 {
+		isValid = false
+	}
+
+	return
+}
+
 type CreateTopicRequest struct {
 	Post Post `json:"post"`
 	Topic Topic `json:"topic"`
+}
+
+func (self *CreateTopicRequest) isValid() (isValid bool) {
+	isValid = true
+
+	if utf8.RuneCountInString(*self.Post.Content) < 3 || utf8.RuneCountInString(*self.Topic.Name) == 0 || self.Topic.ForumId == 0 {
+		isValid = false
+	}
+
+	return
 }

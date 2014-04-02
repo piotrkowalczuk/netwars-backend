@@ -52,15 +52,15 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
+	} else {
+		userSession := NewUserSession(&user)
+
+		responseData, _ := json.Marshal(userSession)
+
+		redisConnection.Do("SET", userSession.Id, responseData)
+
+		r.JSON(http.StatusOK, userSession)
 	}
-
-	userSession := NewUserSession(&user)
-
-	responseData, _ := json.Marshal(userSession)
-
-	redisConnection.Do("SET", userSession.Id, responseData)
-
-	r.JSON(http.StatusOK, userSession)
 }
 
 func logoutHandler(apiCredentials APICredentials, r render.Render, redisPool *redis.Pool) string {

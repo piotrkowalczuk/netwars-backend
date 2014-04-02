@@ -16,12 +16,14 @@ func CreateRoute(router martini.Router) () {
 		"/post",
 		binding.Json(Post{}),
 		binding.Form(user.APICredentials{}),
+		user.AuthenticationMiddleware,
 		postPostHandler,
 	)
 	router.Post(
 		"/topic",
 		binding.Json(CreateTopicRequest{}),
 		binding.Form(user.APICredentials{}),
+		user.AuthenticationMiddleware,
 		postTopicHandler,
 	)
 }
