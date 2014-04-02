@@ -1,7 +1,7 @@
 package forum
 
 import (
-	"github.com/codegangsta/martini"
+	"github.com/go-martini/martini"
 	"github.com/martini-contrib/binding"
 	"github.com/piotrkowalczuk/netwars-backend/user"
 )

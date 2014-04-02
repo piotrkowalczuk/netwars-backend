@@ -1,9 +1,9 @@
 package forum
 
 import (
-	"github.com/codegangsta/martini-contrib/render"
+	"github.com/martini-contrib/render"
 	"github.com/piotrkowalczuk/netwars-backend/user"
-	"github.com/codegangsta/martini"
+	"github.com/go-martini/martini"
 	"github.com/coopernurse/gorp"
 	"github.com/garyburd/redigo/redis"
 	"github.com/modcloth/sqlutil"

@@ -4,8 +4,8 @@ import (
 	"github.com/piotrkowalczuk/netwars-backend/database"
 	"github.com/piotrkowalczuk/netwars-backend/user"
 	"github.com/piotrkowalczuk/netwars-backend/forum"
-	"github.com/codegangsta/martini-contrib/render"
-	"github.com/codegangsta/martini"
+	"github.com/martini-contrib/render"
+	"github.com/go-martini/martini"
 	"log"
 	"net/http"
 	"os"
@@ -37,7 +37,7 @@ func main() {
 	InitRoute(m)
 
 	log.Println("listening on " + config.Server.Host + ":" + config.Server.Port)
-	log.Fatalln(http.ListenAndServe(config.Server.Host+":"+config.Server.Port, m))
+	log.Fatalln(http.ListenAndServe(config.Server.Host + ":" + config.Server.Port, m))
 }
 
 func InitRoute(m *martini.Martini) () {

@@ -2,8 +2,8 @@ package user
 
 import (
 	"github.com/coopernurse/gorp"
-	"github.com/codegangsta/martini"
-	"github.com/codegangsta/martini-contrib/render"
+	"github.com/go-martini/martini"
+	"github.com/martini-contrib/render"
 	"github.com/garyburd/redigo/redis"
 	"net/http"
 	"strconv"
