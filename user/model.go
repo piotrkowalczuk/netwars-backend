@@ -8,14 +8,14 @@ import (
 
 type SecureUser struct {
 	Id  int64 `db:"user_id" json:"id"`
-	Name string `db:"user_name" json:"name"`
-	Email string `db:"email" json:"email"`
-	NTCNick sqlutil.NullString `db:"ntcnick" json:"ntcNick"`
-	NickHistory sqlutil.NullString `db:"nickhistory" json:"nickHistory"`
+	Name string `db:"user_name" json:"name, string"`
+	Email string `db:"email" json:"email, string"`
+	NTCNick sqlutil.NullString `db:"ntcnick" json:"ntcNick, string"`
+	NickHistory sqlutil.NullString `db:"nickhistory" json:"nickHistory, string"`
 	Status *uint16 `db:"user_status" json:"status"`
-	EmailUsed sqlutil.NullInt64 `db:"email_used" json:"emailUsed"`
+	EmailUsed sqlutil.NullInt64 `db:"email_used" json:"emailUsed, string"`
 	ReferrerId sqlutil.NullInt64 `db:"referrer" json:"referrerId"`
-	GaduGadu sqlutil.NullString `db:"gg" json:"gaduGadu"`
+	GaduGadu sqlutil.NullString `db:"gg" json:"gaduGadu, string"`
 	ExtraInfo sqlutil.NullString `db:"extrainfo" json:"extraInfo"`
 	Trial *uint16 `db:"trial" json:"trial"`
 	ShowEmail sqlutil.NullString `db:"showemail" json:"showEmail"`

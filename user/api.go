@@ -63,7 +63,7 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 	}
 }
 
-func logoutHandler(apiCredentials APICredentials, r render.Render, redisPool *redis.Pool) string {
+func logoutHandler(apiCredentials APICredentials, r render.Render, redisPool *redis.Pool) {
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
@@ -71,18 +71,16 @@ func logoutHandler(apiCredentials APICredentials, r render.Render, redisPool *re
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
-		return "Not Found"
-	}
-
-	var userSession UserSession
-	json.Unmarshal(userSessionBytes, &userSession)
-
-	if userSession.Token == apiCredentials.Token {
-		redisConnection.Do("DEL", apiCredentials.Id)
-		r.Error(http.StatusOK)
-		return "Logged out"
 	} else {
-		r.Error(http.StatusUnauthorized)
-		return "Forbidden"
+		var userSession UserSession
+		json.Unmarshal(userSessionBytes, &userSession)
+
+		if userSession.Token == apiCredentials.Token {
+			redisConnection.Do("DEL", apiCredentials.Id)
+			r.Error(http.StatusOK)
+		} else {
+			r.Error(http.StatusUnauthorized)
+		}
 	}
+
 }

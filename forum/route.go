@@ -26,4 +26,11 @@ func CreateRoute(router martini.Router) () {
 		user.AuthenticationMiddleware,
 		postTopicHandler,
 	)
+	router.Patch(
+		"/post/:id",
+		binding.Json(CreatePostRequest{}),
+		binding.Form(user.APICredentials{}),
+		user.AuthenticationMiddleware,
+		patchPostHandler,
+	)
 }
