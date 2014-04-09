@@ -24,13 +24,19 @@ func getUserHandler(w http.ResponseWriter, r *http.Request, dbMap *gorp.DbMap, p
 	w.Write(data)
 }
 
-func registerHandler(user User, r render.Render, dbMap *gorp.DbMap) {
-	err := dbMap.Insert(&user)
+func registerHandler(userRegistration UserRegistration, r render.Render, dbMap *gorp.DbMap) {
+	if userRegistration.isValid() {
+		user := userRegistration.createUser()
 
-	if err != nil {
-		r.Error(http.StatusNotFound)
+		err := dbMap.Insert(user)
+
+		if err != nil {
+			r.Error(http.StatusInternalServerError)
+		} else {
+			r.JSON(http.StatusOK, map[string]interface{}{})
+		}
 	} else {
-		r.JSON(http.StatusOK, map[string]interface{}{})
+		r.Error(http.StatusBadRequest)
 	}
 }
 

@@ -2,8 +2,9 @@ package user
 
 import (
 	"github.com/modcloth/sqlutil"
-	"time"
 	"github.com/nu7hatch/gouuid"
+	"database/sql"
+	"time"
 )
 
 type SecureUser struct {
@@ -34,6 +35,30 @@ type User struct {
 	PasswordSalt string `db:"pass_salt" json:"passwordSalt"`
 	PasswordType uint16 `db:"pass_type" json:"passwordType"`
 	BadLogins sqlutil.NullInt64 `db:"bad_logins" json:"badLogins"`
+}
+
+type UserRegistration struct {
+	PlainPassword string `json:"plainPassword"`
+	Name string `json:"name, string"`
+	Email string `json:"email, string"`
+	GaduGadu string `json:"gaduGadu, string"`
+}
+
+func (self *UserRegistration) isValid() (isValid bool) {
+	isValid = true
+
+	return
+}
+
+func (self *UserRegistration) createUser() *User {
+	user := new(User)
+
+	user.Name = self.Name
+	user.Email = self.Email
+	user.GaduGadu = sqlutil.NullString{sql.NullString{self.GaduGadu, true}}
+	user.Password = self.PlainPassword
+
+	return user
 }
 
 type UserSession struct {

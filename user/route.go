@@ -14,5 +14,5 @@ func CreateRoute(router martini.Router) () {
 		AuthenticationMiddleware,
 		logoutHandler,
 	)
-	router.Post("/register", binding.Json(User{}), registerHandler)
+	router.Post("/register", binding.Json(UserRegistration{}), registerHandler)
 }

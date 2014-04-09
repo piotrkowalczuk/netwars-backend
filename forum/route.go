@@ -8,10 +8,10 @@ import (
 
 func CreateRoute(router martini.Router) () {
 	router.Get("/forum/:id", getForumHandler)
+	router.Get("/forum/:id/topics", getForumTopicsHandler)
 	router.Get("/forums", getForumsHandler)
-	router.Get("/topics/:forumId", getTopicsHandler)
 	router.Get("/topic/:id", getTopicHandler)
-	router.Get("/posts/:topicId", getPostsHandler)
+	router.Get("/topic/:id/posts", getTopicPostsHandler)
 	router.Post(
 		"/post",
 		binding.Json(Post{}),

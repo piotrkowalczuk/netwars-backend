@@ -9,8 +9,8 @@ import (
 	"github.com/kennygrant/sanitize"
 	"database/sql"
 	"net/http"
-	"net"
 	"strconv"
+	"net"
 	"time"
 	"log"
 )
@@ -40,13 +40,39 @@ func getForumsHandler(r render.Render, dbMap *gorp.DbMap) {
 	}
 }
 
-func getTopicsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) {
-	forumId, _ := strconv.Atoi(params["forumId"])
+
+func getForumTopicsHandler(r render.Render, req *http.Request, dbMap *gorp.DbMap, params martini.Params) {
+	forumId, _ := strconv.Atoi(params["id"])
+	queryString := req.URL.Query()
+
+	var limit int
+	var offset int
 	var topics []Topic
 
-	_, err := dbMap.Select(&topics, "SELECT * FROM forum_topic WHERE forum_id = $1 ORDER BY last_post_date DESC", forumId)
+	if limitString := queryString.Get("limit") ; limitString == "" {
+		limit = 10
+	} else {
+		limit, _ = strconv.Atoi(limitString)
+	}
+
+	if offsetString := queryString.Get("offset") ; offsetString == "" {
+		offset = 0
+	} else {
+		offset, _ = strconv.Atoi(offsetString)
+	}
+
+	_, err := dbMap.Select(
+		&topics,
+		"SELECT * FROM forum_topic WHERE forum_id = :forumId ORDER BY last_post_date DESC LIMIT :limit OFFSET :offset",
+		map[string]interface{}{
+			"forumId": forumId,
+			"limit": limit,
+			"offset": offset,
+		},
+	)
 
 	if err != nil {
+		log.Println(err)
 		r.Error(http.StatusNotFound)
 	} else {
 		r.JSON(http.StatusOK, &topics)
@@ -60,14 +86,15 @@ func getTopicHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) 
 	err := dbMap.SelectOne(&topic, "SELECT * FROM forum_topic WHERE topic_id = $1", topicId)
 
 	if err != nil {
+		log.Println(err)
 		r.Error(http.StatusNotFound)
 	} else {
 		r.JSON(http.StatusOK, &topic)
 	}
 }
 
-func getPostsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) {
-	topicId, _ := strconv.Atoi(params["topicId"])
+func getTopicPostsHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) {
+	topicId, _ := strconv.Atoi(params["id"])
 	var posts []Post
 
 	_, err := dbMap.Select(&posts, "SELECT * FROM forum_post WHERE topic_id = $1", topicId)
@@ -174,6 +201,7 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, userSession user.Us
 		createTopicRequest.Post.AuthorIP.String, _, _ = net.SplitHostPort(req.RemoteAddr)
 
 		err = dbMap.Insert(&createTopicRequest.Post)
+
 
 		createTopicRequest.Topic.LastPostDate = &now
 		createTopicRequest.Topic.LastPostId.Int64 = createTopicRequest.Post.Id

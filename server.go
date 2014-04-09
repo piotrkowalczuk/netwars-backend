@@ -8,7 +8,7 @@ import (
 	"github.com/go-martini/martini"
 	"log"
 	"net/http"
-	"os"
+	//"os"
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 	dbMap.AddTableWithName(forum.Topic{}, "forum_topic").SetKeys(true, "topic_id")
 	dbMap.AddTableWithName(forum.Post{}, "forum_post").SetKeys(true, "post_id")
 
-	dbMap.TraceOn("[gorp]", log.New(os.Stdout, "netwars:", log.Lmicroseconds))
+	//dbMap.TraceOn("[gorp]", log.New(os.Stdout, "netwars:", log.Lmicroseconds))
 
 	m.Map(dbMap)
 	m.Map(redisPool)
