@@ -2,15 +2,16 @@ package database
 
 import (
 	"database/sql"
-	"github.com/coopernurse/gorp"
 	_ "github.com/lib/pq"
 )
 
 
-func InitializeGorp(config PostgreConfig) *gorp.DbMap {
-	db, _ := sql.Open("postgres", config.ConnectionString)
+func InitPostgre(config PostgreConfig) *sql.DB {
+	db, err := sql.Open("postgres", config.ConnectionString)
 
-	dbMap := &gorp.DbMap{Db: db, Dialect: gorp.PostgresDialect{}}
+	if err != nil {
+		panic(err)
+	}
 
-	return dbMap
+	return db
 }

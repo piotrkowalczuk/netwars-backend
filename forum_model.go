@@ -1,4 +1,4 @@
-package forum
+package main
 
 import (
 	"github.com/modcloth/sqlutil"
@@ -47,7 +47,7 @@ type Post struct {
 	CreatedAt *time.Time `db:"post_date" json:"createdAt"`
 	CreatedAgo *int64 `db:"-" json:"createdAgo, omitempty"`
 	Content *string `db:"post_body" json:"content, string"`
-	NbOfChanges sqlutil.NullInt64 `db:"mod_counter" json:"nbOfChanges"`
+	NbOfChanges *int64 `db:"mod_counter" json:"nbOfChanges"`
 	ChangeAt *time.Time `db:"mod_date" json:"changeAt"`
 	ChangerId sqlutil.NullInt64 `db:"mod_user_id" json:"changerId"`
 	ChangerName sqlutil.NullString `db:"mod_user_name" json:"changerName, string"`

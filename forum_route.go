@@ -1,12 +1,11 @@
-package forum
+package main
 
 import (
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/binding"
-	"github.com/piotrkowalczuk/netwars-backend/user"
 )
 
-func CreateRoute(router martini.Router) () {
+func CreateForumRoute(router martini.Router) () {
 	router.Get("/forum/:id", getForumHandler)
 	router.Get("/forum/:id/topics", getForumTopicsHandler)
 	router.Get("/forums", getForumsHandler)
@@ -15,22 +14,22 @@ func CreateRoute(router martini.Router) () {
 	router.Post(
 		"/post",
 		binding.Json(Post{}),
-		binding.Form(user.APICredentials{}),
-		user.AuthenticationMiddleware,
+		binding.Form(APICredentials{}),
+		AuthenticationMiddleware,
 		postPostHandler,
 	)
 	router.Post(
 		"/topic",
 		binding.Json(CreateTopicRequest{}),
-		binding.Form(user.APICredentials{}),
-		user.AuthenticationMiddleware,
+		binding.Form(APICredentials{}),
+		AuthenticationMiddleware,
 		postTopicHandler,
 	)
 	router.Patch(
 		"/post/:id",
 		binding.Json(CreatePostRequest{}),
-		binding.Form(user.APICredentials{}),
-		user.AuthenticationMiddleware,
+		binding.Form(APICredentials{}),
+		AuthenticationMiddleware,
 		patchPostHandler,
 	)
 }

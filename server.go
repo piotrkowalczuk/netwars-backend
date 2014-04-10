@@ -2,13 +2,10 @@ package main
 
 import (
 	"github.com/piotrkowalczuk/netwars-backend/database"
-	"github.com/piotrkowalczuk/netwars-backend/user"
-	"github.com/piotrkowalczuk/netwars-backend/forum"
 	"github.com/martini-contrib/render"
 	"github.com/go-martini/martini"
-	"log"
 	"net/http"
-	//"os"
+	"log"
 )
 
 func main() {
@@ -21,17 +18,11 @@ func main() {
 	m.Use(render.Renderer())
 
 	redisPool := database.InitializeRedis(config.Redis)
+	postgrePool := database.InitPostgre(config.Postgre)
 
-	dbMap := database.InitializeGorp(config.Postgre)
-	dbMap.AddTableWithName(user.User{}, "users").SetKeys(true, "user_id")
-	dbMap.AddTableWithName(user.SecureUser{}, "users").SetKeys(true, "user_id")
-	dbMap.AddTableWithName(forum.Forum{}, "forum").SetKeys(true, "forum_id")
-	dbMap.AddTableWithName(forum.Topic{}, "forum_topic").SetKeys(true, "topic_id")
-	dbMap.AddTableWithName(forum.Post{}, "forum_post").SetKeys(true, "post_id")
+	repositoryManager := NewRepositoryManager(postgrePool)
 
-	//dbMap.TraceOn("[gorp]", log.New(os.Stdout, "netwars:", log.Lmicroseconds))
-
-	m.Map(dbMap)
+	m.Map(repositoryManager)
 	m.Map(redisPool)
 
 	InitRoute(m)
@@ -43,8 +34,8 @@ func main() {
 func InitRoute(m *martini.Martini) () {
 	router := martini.NewRouter()
 
-	forum.CreateRoute(router)
-	user.CreateRoute(router)
+	CreateForumRoute(router)
+	CreateUserRoute(router)
 
 	m.Action(router.Handle)
 }

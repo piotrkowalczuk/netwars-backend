@@ -1,11 +1,10 @@
-package user
+package main
 
 import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/go-martini/martini"
 	"net/http"
 	"encoding/json"
-	"log"
 )
 
 func AuthenticationMiddleware(c martini.Context, apiCredentials APICredentials, res http.ResponseWriter, redisPool *redis.Pool) {
@@ -13,10 +12,11 @@ func AuthenticationMiddleware(c martini.Context, apiCredentials APICredentials, 
 	defer redisConnection.Close()
 
 	userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.Id))
+	logIf(err)
 
 	if err != nil {
-		log.Println(err)
 		res.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	var userSession UserSession
@@ -24,6 +24,7 @@ func AuthenticationMiddleware(c martini.Context, apiCredentials APICredentials, 
 
 	if userSession.Token != apiCredentials.Token {
 		res.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	c.Map(userSession)

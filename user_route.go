@@ -1,11 +1,11 @@
-package user
+package main
 
 import (
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/binding"
 )
 
-func CreateRoute(router martini.Router) () {
+func CreateUserRoute(router martini.Router) () {
 	router.Get("/user/:id", getUserHandler)
 	router.Post("/login", binding.Json(LoginCredentials{}), loginHandler)
 	router.Post(

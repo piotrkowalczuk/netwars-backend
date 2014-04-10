@@ -1,10 +1,13 @@
-package user
+package main
 
 import (
 	"github.com/modcloth/sqlutil"
 	"github.com/nu7hatch/gouuid"
-	"database/sql"
+	"unicode/utf8"
+	"strings"
+	"regexp"
 	"time"
+	"log"
 )
 
 type SecureUser struct {
@@ -37,15 +40,62 @@ type User struct {
 	BadLogins sqlutil.NullInt64 `db:"bad_logins" json:"badLogins"`
 }
 
+func (u *User) GetSecureUser() (su *SecureUser) {
+	su.Id = u.Id
+	su.Name = u.Name
+	su.Email = u.Email
+	su.NTCNick = u.NTCNick
+	su.NickHistory = u.NickHistory
+	su.Status = u.Status
+	su.EmailUsed = u.EmailUsed
+	su.ReferrerId = u.ReferrerId
+	su.GaduGadu = u.GaduGadu
+	su.ExtraInfo = u.ExtraInfo
+	su.Trial = u.Trial
+	su.ShowEmail = u.ShowEmail
+	su.NbOfRefs = u.NbOfRefs
+	su.Suspended = u.Suspended
+	su.ChangeIp = u.ChangeIp
+	su.ChangeUserId = u.ChangeUserId
+	su.ChangeAt = u.ChangeAt
+	su.LoginAt = u.LoginAt
+	su.CreatedAt = u.CreatedAt
+
+	return
+}
+
 type UserRegistration struct {
 	PlainPassword string `json:"plainPassword"`
 	Name string `json:"name, string"`
 	Email string `json:"email, string"`
-	GaduGadu string `json:"gaduGadu, string"`
 }
 
 func (self *UserRegistration) isValid() (isValid bool) {
 	isValid = true
+
+	trimmedName := strings.TrimSpace(self.Name)
+	trimmedPassword := strings.TrimSpace(self.PlainPassword)
+	trimmedEmail := strings.TrimSpace(self.Email)
+
+	if !strings.EqualFold(self.Name, trimmedName) || !strings.EqualFold(self.PlainPassword, trimmedPassword) || !strings.EqualFold(self.Email, trimmedEmail) {
+		log.Println("Posiada biale znaki")
+		isValid = false
+	}
+
+	if words := strings.Fields(self.Name) ; len(words) > 1 {
+		log.Println("Posiada biale znaki w środku ")
+		isValid = false
+	}
+
+	if match, _ := regexp.MatchString(`(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})`, self.Email) ; !match {
+		log.Println("email ssie")
+		isValid = false
+	}
+
+	if utf8.RuneCountInString(self.Name) < 3 {
+		log.Println("Za krótki name")
+		isValid = false
+	}
 
 	return
 }
@@ -55,7 +105,6 @@ func (self *UserRegistration) createUser() *User {
 
 	user.Name = self.Name
 	user.Email = self.Email
-	user.GaduGadu = sqlutil.NullString{sql.NullString{self.GaduGadu, true}}
 	user.Password = self.PlainPassword
 
 	return user
