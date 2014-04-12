@@ -7,6 +7,7 @@ import (
 
 func CreateUserRoute(router martini.Router) () {
 	router.Get("/user/:id", getUserHandler)
+	router.Get("/users/online", getOnlineUsersHandler)
 	router.Post("/login", binding.Json(LoginCredentials{}), loginHandler)
 	router.Post(
 		"/logout",

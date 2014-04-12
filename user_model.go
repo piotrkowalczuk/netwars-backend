@@ -10,6 +10,10 @@ import (
 	"log"
 )
 
+const (
+	SESSION_LIFE_TIME int = 86400
+)
+
 type SecureUser struct {
 	Id  int64 `db:"user_id" json:"id"`
 	Name string `db:"user_name" json:"name, string"`
@@ -110,6 +114,11 @@ func (self *UserRegistration) createUser() *User {
 	return user
 }
 
+type BasicUser struct {
+	Id int64 `json:"id"`
+	Name string `json:"name"`
+}
+
 type UserSession struct {
 	Id int64 `db:"user_id" json:"id"`
 	Name string `db:"user_name" json:"name"`
@@ -140,9 +149,21 @@ func NewUserSession(user *User) (userSession *UserSession) {
 	return
 }
 
+func (us *UserSession) getSessionKey() string {
+	return createUserSessionKey(us.Token)
+}
+
+func createUserSessionKey(key string) string {
+	return "user:"+key
+}
+
 type APICredentials struct {
 	Id int64 `form:"id" json:"id"`
 	Token string `form:"token" json:"token"`
+}
+
+func (apic *APICredentials) getSessionKey() string {
+	return createUserSessionKey(apic.Token)
 }
 
 type LoginCredentials struct {

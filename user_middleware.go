@@ -11,11 +11,11 @@ func AuthenticationMiddleware(c martini.Context, apiCredentials APICredentials, 
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
-	userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.Id))
+	userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.getSessionKey()))
 	logIf(err)
 
 	if err != nil {
-		res.WriteHeader(http.StatusNotFound)
+		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -27,5 +27,6 @@ func AuthenticationMiddleware(c martini.Context, apiCredentials APICredentials, 
 		return
 	}
 
+	redisConnection.Do("EXPIRE", userSession.getSessionKey(), SESSION_LIFE_TIME)
 	c.Map(userSession)
 }
