@@ -101,7 +101,7 @@ func (sr *SearchRepository) FetchSearchResultsTopics(id int64, limit int64, offs
 			ft.topic_deleted,
 			ft.change_date,
 			ft.change_user_id,
-			ft.change_ip,
+			ft.change_ip
 		FROM f_result as fr
 		LEFT JOIN forum_topic as ft ON ft.topic_id = fr.fresult_id
 		WHERE fr.fresult_type = $1 AND fr.fsearch_id = $2
