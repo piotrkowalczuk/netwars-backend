@@ -59,7 +59,7 @@ func getForumTopicsHandler(rm *RepositoryManager, r render.Render, req *http.Req
 		offset, _ = strconv.ParseInt(offsetString, 10, 64)
 	}
 
-	err, topics := rm.TopicRepository.Find(forumId, limit, offset)
+	topics, err := rm.TopicRepository.Find(forumId, limit, offset)
 	logIf(err)
 
 	if err != nil {
@@ -214,5 +214,3 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, userSession UserSes
 
 	r.JSON(http.StatusOK, &createTopicRequest.Topic)
 }
-
-

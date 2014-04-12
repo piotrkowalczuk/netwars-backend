@@ -36,6 +36,7 @@ func InitRoute(m *martini.Martini) () {
 
 	CreateForumRoute(router)
 	CreateUserRoute(router)
+	CreateSearchRoute(router)
 
 	m.Action(router.Handle)
 }

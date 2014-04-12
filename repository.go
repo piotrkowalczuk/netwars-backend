@@ -8,6 +8,7 @@ type RepositoryManager struct {
 	ForumRepository *ForumRepository
 	TopicRepository *TopicRepository
 	PostRepository *PostRepository
+	SearchRepository *SearchRepository
 }
 
 func NewRepositoryManager(postgrePool *sql.DB) (repositoryManager *RepositoryManager) {
@@ -17,6 +18,7 @@ func NewRepositoryManager(postgrePool *sql.DB) (repositoryManager *RepositoryMan
 	repositoryManager.ForumRepository = NewForumRepository(postgrePool)
 	repositoryManager.TopicRepository = NewTopicRepository(postgrePool)
 	repositoryManager.PostRepository = NewPostRepository(postgrePool)
+	repositoryManager.SearchRepository = NewSearchRepository(postgrePool)
 
 	return
 }

@@ -128,7 +128,7 @@ func (tr *TopicRepository) FindOne(id int64) (error, *Topic) {
 	return err, topic
 }
 
-func (tr *TopicRepository) Find(forumId int64, limit int64, offset int64) (error, []*Topic) {
+func (tr *TopicRepository) Find(forumId int64, limit int64, offset int64) ([]*Topic, error) {
 	var topics []*Topic
 	var err error
 
@@ -167,5 +167,5 @@ func (tr *TopicRepository) Find(forumId int64, limit int64, offset int64) (error
 		topics = append(topics, topic)
 	}
 
-	return err, topics
+	return topics, err
 }
