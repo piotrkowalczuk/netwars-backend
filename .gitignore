@@ -1,3 +1,4 @@
 .idea
 netwars-backend.iml
 config.xml
+/sql/netwars.sql
