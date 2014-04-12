@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/coopernurse/gorp"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
 	"github.com/garyburd/redigo/redis"
@@ -10,11 +9,11 @@ import (
 	"encoding/json"
 )
 
-func getUserHandler(r render.Render, dbMap *gorp.DbMap, params martini.Params) {
-	id, err := strconv.Atoi(params["id"])
+func getUserHandler(rm *RepositoryManager, r render.Render, params martini.Params) {
+	id, err := strconv.ParseInt(params["id"], 10, 64)
 	logIf(err)
 
-	user, err := dbMap.Get(SecureUser{}, id)
+	user, err := rm.UserRepository.FindOne(id)
 	logIf(err)
 
 	if err != nil {

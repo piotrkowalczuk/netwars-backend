@@ -106,7 +106,7 @@ func (ur *UserRepository) Update(user *User) (sql.Result, error) {
 	return result, err
 }
 
-func (ur *UserRepository) FindOne(id int64) (error, *User) {
+func (ur *UserRepository) FindOne(id int64) (*User, error) {
 	user := new(User)
 
 	err := ur.db.QueryRow(
@@ -137,9 +137,8 @@ func (ur *UserRepository) FindOne(id int64) (error, *User) {
 		&user.NbOfRefs,
 		&user.Suspended,
 	)
-	logIf(err)
 
-	return err, user
+	return user, err
 }
 
 func (ur *UserRepository) FindOneByEmailAndPassword(email string, password string) (error, *User) {
@@ -174,7 +173,6 @@ func (ur *UserRepository) FindOneByEmailAndPassword(email string, password strin
 		&user.NbOfRefs,
 		&user.Suspended,
 	)
-	logIf(err)
 
 	return err, user
 }
