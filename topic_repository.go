@@ -129,7 +129,7 @@ func (tr *TopicRepository) FindOne(id int64) (error, *Topic) {
 }
 
 func (tr *TopicRepository) Find(forumId int64, limit int64, offset int64) ([]*Topic, error) {
-	var topics []*Topic
+	topics := []*Topic{}
 	var err error
 
 	rows, err := tr.db.Query(

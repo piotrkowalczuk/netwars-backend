@@ -81,7 +81,7 @@ func getOnlineUsersHandler(r render.Render, redisPool *redis.Pool) {
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
-	var usersOnline []BasicUser
+	usersOnline := []BasicUser{}
 	var keys []interface{}
 
 	keysValues, err := redis.Values(redisConnection.Do("KEYS", "user:*"))

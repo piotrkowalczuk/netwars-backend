@@ -99,7 +99,7 @@ func (pr *PostRepository) FindOne(id int64) (error, *Post) {
 }
 
 func (pr *PostRepository) FindByTopicId(topicId int64) (error, []*Post) {
-	var posts []*Post
+	posts := []*Post{}
 
 	rows, err := pr.db.Query("SELECT * FROM forum_post WHERE topic_id = $1", topicId)
 	defer rows.Close()

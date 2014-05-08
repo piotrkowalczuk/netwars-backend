@@ -31,7 +31,7 @@ func (sr *SearchRepository) Search(text string, searchRange int64, userId int64)
 }
 
 func (sr *SearchRepository) FetchSearchResultsPosts(id int64, limit int64, offset int64) ([]*Post, error) {
-	var posts []*Post
+	posts := []*Post{}
 
 	query := `
 		SELECT
@@ -79,7 +79,7 @@ func (sr *SearchRepository) FetchSearchResultsPosts(id int64, limit int64, offse
 }
 
 func (sr *SearchRepository) FetchSearchResultsTopics(id int64, limit int64, offset int64) ([]*Topic, error) {
-	var topics []*Topic
+	topics := []*Topic{}
 
 	query := `
 		SELECT
