@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+    <server>
+        <host>127.0.0.1</host>
+        <port>7001</port>
+        <read_timeout>10</read_timeout>
+        <write_timeout>10</write_timeout>
+    </server>
+    <redis>
+        <address>:6379</address>
+    </redis>
+    <postgre>
+        <connectionString>postgres://postgres:postgres.123@localhost/netwars-test?sslmode=disable</connectionString>
+    </postgre>
+</config>

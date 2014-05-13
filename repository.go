@@ -5,6 +5,7 @@ import (
 )
 type RepositoryManager struct {
 	UserRepository *UserRepository
+	StreamRepository *StreamRepository
 	ForumRepository *ForumRepository
 	TopicRepository *TopicRepository
 	PostRepository *PostRepository
@@ -15,6 +16,7 @@ func NewRepositoryManager(postgrePool *sql.DB) (repositoryManager *RepositoryMan
 	repositoryManager = &RepositoryManager{}
 
 	repositoryManager.UserRepository = NewUserRepository(postgrePool)
+	repositoryManager.StreamRepository = NewStreamRepository(postgrePool)
 	repositoryManager.ForumRepository = NewForumRepository(postgrePool)
 	repositoryManager.TopicRepository = NewTopicRepository(postgrePool)
 	repositoryManager.PostRepository = NewPostRepository(postgrePool)

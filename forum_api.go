@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"net"
 	"time"
-	"log"
 )
 
 func getForumHandler(r render.Render, rm *RepositoryManager, params martini.Params) {
@@ -204,8 +203,8 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, userSession UserSes
 	createTopicRequest.Topic.LastPostDate = &now
 	createTopicRequest.Topic.LastPostId = sqlutil.NullInt64{sql.NullInt64{int64(postId), true}}
 
-	result, err := rm.TopicRepository.Update(&createTopicRequest.Topic)
-	log.Println(result)
+	_, err = rm.TopicRepository.Update(&createTopicRequest.Topic)
+	logIf(err)
 
 	if err != nil {
 		r.Error(http.StatusInternalServerError)

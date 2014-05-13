@@ -7,8 +7,6 @@ import (
 	"log"
 )
 
-const filePath = "config.xml"
-
 type Config struct {
 	Server Server `xml:"server"`
 	Redis database.RedisConfig `xml:"redis"`
@@ -22,7 +20,7 @@ type Server struct {
 	WriteTimeout int `xml:"write_timeout"`
 }
 
-func openFile() (file *os.File) {
+func openFile(filePath string) (file *os.File) {
 	file, err := os.Open(filePath)
 
 	if err != nil {
@@ -33,9 +31,9 @@ func openFile() (file *os.File) {
 	return
 }
 
-func ReadConfiguration() (config *Config){
+func ReadConfiguration(filePath string) (config *Config){
 	config = new(Config)
-	file := openFile()
+	file := openFile(filePath)
 	defer file.Close()
 
 	decoder := xml.NewDecoder(file)

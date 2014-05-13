@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	config := ReadConfiguration()
+	config := ReadConfiguration("config.xml")
 
 	m := martini.New()
 
