@@ -28,7 +28,7 @@ func InitializeEnvironment() {
 
 	redisPool := database.InitializeRedis(config.Redis)
 	postgrePool := database.InitPostgre(config.Postgre)
-	repositoryManager := NewRepositoryManager(postgrePool)
+	repositoryManager := NewRepositoryManager(postgrePool, redisPool)
 
 	m = martini.Classic()
 	m.Use(martini.Recovery())

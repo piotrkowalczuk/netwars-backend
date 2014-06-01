@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 )
 
 type StreamRepository struct {
@@ -82,7 +81,6 @@ func (sr *StreamRepository) Find(limit int64, offset int64) ([]*Stream, error) {
 		}
 
 		if streamTwitch.Stream.Id > 1 {
-			log.Println(streamTwitch.Stream)
 			stream.IsOnline = true
 			stream.Current.Id = streamTwitch.Stream.Id
 			stream.Current.Viewers = streamTwitch.Stream.Viewers
