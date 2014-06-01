@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/garyburd/redigo/redis"
 	"github.com/go-martini/martini"
 	"net/http"
-	"encoding/json"
 )
 
 func AuthenticationMiddleware(c martini.Context, apiCredentials APICredentials, res http.ResponseWriter, redisPool *redis.Pool) {

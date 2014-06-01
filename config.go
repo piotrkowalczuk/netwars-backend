@@ -1,23 +1,23 @@
 package main
 
 import (
-	"github.com/piotrkowalczuk/netwars-backend/database"
 	"encoding/xml"
-	"os"
+	"github.com/piotrkowalczuk/netwars-backend/database"
 	"log"
+	"os"
 )
 
 type Config struct {
-	Server Server `xml:"server"`
-	Redis database.RedisConfig `xml:"redis"`
+	Server  Server                 `xml:"server"`
+	Redis   database.RedisConfig   `xml:"redis"`
 	Postgre database.PostgreConfig `xml:"postgre"`
 }
 
 type Server struct {
-	Host string `xml:"host"`
-	Port string `xml:"port"`
-	ReadTimeout int `xml:"read_timeout"`
-	WriteTimeout int `xml:"write_timeout"`
+	Host         string `xml:"host"`
+	Port         string `xml:"port"`
+	ReadTimeout  int    `xml:"read_timeout"`
+	WriteTimeout int    `xml:"write_timeout"`
 }
 
 func openFile(filePath string) (file *os.File) {
@@ -31,7 +31,7 @@ func openFile(filePath string) (file *os.File) {
 	return
 }
 
-func ReadConfiguration(filePath string) (config *Config){
+func ReadConfiguration(filePath string) (config *Config) {
 	config = new(Config)
 	file := openFile(filePath)
 	defer file.Close()
@@ -41,5 +41,3 @@ func ReadConfiguration(filePath string) (config *Config){
 
 	return
 }
-
-

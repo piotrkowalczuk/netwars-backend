@@ -1,6 +1,5 @@
 package database
 
-
 type RedisConfig struct {
 	Address string `xml:"address"`
 }

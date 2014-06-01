@@ -6,7 +6,7 @@ import (
 
 func InitializeRedis(config RedisConfig) (redisPool *redis.Pool) {
 	redisPool = &redis.Pool{
-		MaxIdle: 3,
+		MaxIdle:   3,
 		MaxActive: 10, // max number of connections
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", config.Address)

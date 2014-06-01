@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/go-martini/martini"
-	"github.com/martini-contrib/render"
-	"github.com/garyburd/redigo/redis"
 	"encoding/json"
+	"github.com/garyburd/redigo/redis"
+	"github.com/go-martini/martini"
+	"github.com/martini-contrib/binding"
+	"github.com/martini-contrib/render"
 	"net/http"
 	"strconv"
 )
@@ -24,9 +25,25 @@ func getUserHandler(rm *RepositoryManager, r render.Render, params martini.Param
 	r.JSON(http.StatusOK, &user)
 }
 
-func registerHandler(userRegistration UserRegistration, r render.Render, rm *RepositoryManager) {
-	if !userRegistration.isValid() {
-		r.Error(http.StatusBadRequest)
+func registerHandler(userRegistration UserRegistration, errors binding.Errors, r render.Render, rm *RepositoryManager) {
+	if _, exists := rm.UserRepository.FindBy("email", userRegistration.Email); len(exists) > 0 {
+		errors = append(errors, binding.Error{
+			FieldNames:     []string{"email"},
+			Classification: "UniqueError",
+			Message:        "Użytkownik z takim adresem email już istnieje.",
+		})
+	}
+
+	if _, exists := rm.UserRepository.FindBy("user_name", userRegistration.Name); len(exists) > 0 {
+		errors = append(errors, binding.Error{
+			FieldNames:     []string{"name"},
+			Classification: "UniqueError",
+			Message:        "Użytkownik o takiej nazwie już istnieje.",
+		})
+	}
+
+	if len(errors) > 0 {
+		r.JSON(http.StatusBadRequest, errors)
 		return
 	}
 
@@ -48,8 +65,8 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 	defer redisConnection.Close()
 
 	/*
-	Naive implementation
-	 */
+		Naive implementation
+	*/
 	err, user := rm.UserRepository.FindOneByEmailAndPassword(credentials.Email, credentials.Password)
 	logIf(err)
 
@@ -75,7 +92,6 @@ func logoutHandler(userSession UserSession, r render.Render, redisPool *redis.Po
 	redisConnection.Do("DEL", userSession.getSessionKey())
 	r.Error(http.StatusOK)
 }
-
 
 func getOnlineUsersHandler(r render.Render, redisPool *redis.Pool) {
 	redisConnection := redisPool.Get()
@@ -110,11 +126,8 @@ func getOnlineUsersHandler(r render.Render, redisPool *redis.Pool) {
 	r.JSON(http.StatusOK, usersOnline)
 }
 
-func getUserStreamHandler(rm *RepositoryManager, r render.Render, params martini.Params) {
-	id, err := strconv.ParseInt(params["id"], 10, 64)
-	logIf(err)
-
-	stream, err := rm.StreamRepository.FindOne(id)
+func getUserStreamHandler(rm *RepositoryManager, r render.Render, userSession UserSession, params martini.Params) {
+	stream, err := rm.StreamRepository.FindOne(userSession.Id)
 	logIf(err)
 
 	if err != nil {
@@ -125,16 +138,17 @@ func getUserStreamHandler(rm *RepositoryManager, r render.Render, params martini
 	r.JSON(http.StatusOK, &stream)
 }
 
-func putUserStreamHandler(streamRequest StreamRequest, userSession UserSession, rm *RepositoryManager, req *http.Request, r render.Render) {
-	if !streamRequest.isValid() {
-		r.Error(http.StatusBadRequest)
+func postUserStreamHandler(streamRequest StreamRequest, errors binding.Errors, userSession UserSession, rm *RepositoryManager, r render.Render) {
+	if len(errors) > 0 {
+		r.JSON(http.StatusBadRequest, errors)
 		return
 	}
 
 	var err error
 
 	streamRequest.UserId = userSession.Id
-	if stream, _ := rm.StreamRepository.FindOne(userSession.Id); stream.UserId != 0 {
+	streamRequest.Type = int64(1)
+	if stream, _ := rm.StreamRepository.SourcePostgre.FindOne(userSession.Id); stream.UserId != 0 {
 		_, err = rm.StreamRepository.Update(&streamRequest.Stream)
 	} else {
 		_, err = rm.StreamRepository.Insert(&streamRequest.Stream)
@@ -147,4 +161,3 @@ func putUserStreamHandler(streamRequest StreamRequest, userSession UserSession, 
 
 	r.JSON(http.StatusOK, &streamRequest)
 }
-

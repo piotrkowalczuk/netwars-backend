@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/martini-contrib/render"
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/render"
 	"net/http"
 	"strconv"
 )
@@ -28,13 +28,13 @@ func getSearchResultsHandler(rm *RepositoryManager, params martini.Params, r ren
 	var limit int64
 	var offset int64
 
-	if limitString := queryString.Get("limit") ; limitString == "" {
+	if limitString := queryString.Get("limit"); limitString == "" {
 		limit = int64(10)
 	} else {
 		limit, _ = strconv.ParseInt(limitString, 10, 64)
 	}
 
-	if offsetString := queryString.Get("offset") ; offsetString == "" {
+	if offsetString := queryString.Get("offset"); offsetString == "" {
 		offset = int64(0)
 	} else {
 		offset, _ = strconv.ParseInt(offsetString, 10, 64)
@@ -50,6 +50,5 @@ func getSearchResultsHandler(rm *RepositoryManager, params martini.Params, r ren
 		return
 	}
 
-	r.JSON(http.StatusOK, map[string]interface{}{"posts":  &posts, "topics": &topics})
+	r.JSON(http.StatusOK, map[string]interface{}{"posts": &posts, "topics": &topics})
 }
-

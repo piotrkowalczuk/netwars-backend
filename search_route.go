@@ -5,7 +5,7 @@ import (
 	"github.com/martini-contrib/binding"
 )
 
-func CreateSearchRoute(router martini.Router) () {
+func CreateSearchRoute(router martini.Router) {
 	router.Post(
 		"/search",
 		binding.Json(SearchParams{}),

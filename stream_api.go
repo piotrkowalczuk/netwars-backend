@@ -22,23 +22,16 @@ func getStreamHandler(rm *RepositoryManager, r render.Render, params martini.Par
 	r.JSON(http.StatusOK, &stream)
 }
 
-func postStreamHandler(streamRequest StreamRequest, userSession UserSession, rm *RepositoryManager, req *http.Request, r render.Render) {
-	if !streamRequest.isValid() {
-		r.Error(http.StatusBadRequest)
+func getStreamsHandler(rm *RepositoryManager, r render.Render) {
+	limit := int64(100)
+	offset := int64(0)
+	streams, err := rm.StreamRepository.Find(limit, offset)
+	logIf(err)
+
+	if err != nil {
+		r.Error(http.StatusNotFound)
 		return
 	}
 
-	var err error
-
-	streamRequest.UserId = userSession.Id
-
-
-	_, err = rm.StreamRepository.Insert(&streamRequest.Stream)
-
-	if err != nil {
-	r.Error(http.StatusInternalServerError)
-	return
-	}
-
-	r.JSON(http.StatusOK, &streamRequest)
+	r.JSON(http.StatusOK, &streams)
 }

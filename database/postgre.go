@@ -5,7 +5,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-
 func InitPostgre(config PostgreConfig) *sql.DB {
 	db, err := sql.Open("postgres", config.ConnectionString)
 

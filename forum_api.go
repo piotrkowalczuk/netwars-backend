@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/martini-contrib/render"
-	"github.com/go-martini/martini"
-	"github.com/modcloth/sqlutil"
-	"github.com/kennygrant/sanitize"
 	"database/sql"
+	"github.com/go-martini/martini"
+	"github.com/kennygrant/sanitize"
+	"github.com/martini-contrib/render"
+	"github.com/modcloth/sqlutil"
+	"net"
 	"net/http"
 	"strconv"
-	"net"
 	"time"
 )
 
@@ -38,7 +38,6 @@ func getForumsHandler(r render.Render, rm *RepositoryManager) {
 	r.JSON(http.StatusOK, &forums)
 }
 
-
 func getForumTopicsHandler(rm *RepositoryManager, r render.Render, req *http.Request, params martini.Params) {
 	forumId, _ := strconv.ParseInt(params["id"], 10, 64)
 	queryString := req.URL.Query()
@@ -46,13 +45,13 @@ func getForumTopicsHandler(rm *RepositoryManager, r render.Render, req *http.Req
 	var limit int64
 	var offset int64
 
-	if limitString := queryString.Get("limit") ; limitString == "" {
+	if limitString := queryString.Get("limit"); limitString == "" {
 		limit = int64(10)
 	} else {
 		limit, _ = strconv.ParseInt(limitString, 10, 64)
 	}
 
-	if offsetString := queryString.Get("offset") ; offsetString == "" {
+	if offsetString := queryString.Get("offset"); offsetString == "" {
 		offset = int64(0)
 	} else {
 		offset, _ = strconv.ParseInt(offsetString, 10, 64)

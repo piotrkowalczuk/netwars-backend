@@ -5,15 +5,14 @@ import (
 	"github.com/martini-contrib/binding"
 )
 
-func CreateUserRoute(router martini.Router) () {
-	// GET
+func CreateUserRoute(router martini.Router) {
 	router.Get("/user/stream",
 		binding.Form(APICredentials{}),
+		AuthenticationMiddleware,
 		getUserStreamHandler,
 	)
 	router.Get("/user/:id", getUserHandler)
 	router.Get("/users/online", getOnlineUsersHandler)
-	// POST
 	router.Post("/login", binding.Json(LoginCredentials{}), loginHandler)
 	router.Post(
 		"/logout",
@@ -22,11 +21,11 @@ func CreateUserRoute(router martini.Router) () {
 		logoutHandler,
 	)
 	router.Post("/register", binding.Json(UserRegistration{}), registerHandler)
-	// PUT
-	router.Put(
-		"/users/stream",
+	router.Post(
+		"/user/stream",
 		binding.Json(StreamRequest{}),
 		binding.Form(APICredentials{}),
-		putUserStreamHandler,
+		AuthenticationMiddleware,
+		postUserStreamHandler,
 	)
 }

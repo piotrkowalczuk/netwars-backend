@@ -106,7 +106,7 @@ func (pr *PostRepository) FindByTopicId(topicId int64) (error, []*Post) {
 
 	for rows.Next() {
 		post := new(Post)
-		err := rows.Scan(
+		err = rows.Scan(
 			&post.Id,
 			&post.TopicId,
 			&post.AuthorId,
@@ -118,10 +118,7 @@ func (pr *PostRepository) FindByTopicId(topicId int64) (error, []*Post) {
 			&post.ChangerName,
 			&post.ChangeAt,
 			&post.AuthorIP,
-
 		)
-
-		PanicIf(err)
 
 		posts = append(posts, post)
 	}

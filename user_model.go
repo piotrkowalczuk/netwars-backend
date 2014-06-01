@@ -1,13 +1,12 @@
 package main
 
 import (
+	"github.com/jamieomatthews/validation"
+	"github.com/martini-contrib/binding"
 	"github.com/modcloth/sqlutil"
 	"github.com/nu7hatch/gouuid"
-	"unicode/utf8"
-	"strings"
-	"regexp"
+	"net/http"
 	"time"
-	"log"
 )
 
 const (
@@ -15,33 +14,33 @@ const (
 )
 
 type SecureUser struct {
-	Id  int64 `db:"user_id" json:"id"`
-	Name string `db:"user_name" json:"name, string"`
-	Email string `db:"email" json:"email, string"`
-	NTCNick sqlutil.NullString `db:"ntcnick" json:"ntcNick, string"`
-	NickHistory sqlutil.NullString `db:"nickhistory" json:"nickHistory, string"`
-	Status *uint16 `db:"user_status" json:"status"`
-	EmailUsed sqlutil.NullInt64 `db:"email_used" json:"emailUsed, string"`
-	ReferrerId sqlutil.NullInt64 `db:"referrer" json:"referrerId"`
-	GaduGadu sqlutil.NullString `db:"gg" json:"gaduGadu, string"`
-	ExtraInfo sqlutil.NullString `db:"extrainfo" json:"extraInfo"`
-	Trial *uint16 `db:"trial" json:"trial"`
-	ShowEmail sqlutil.NullString `db:"showemail" json:"showEmail"`
-	NbOfRefs sqlutil.NullInt64 `db:"refer_count" json:"nbOfRefs"`
-	Suspended sqlutil.NullString `db:"suspended" json:"suspended"`
-	ChangeIp sqlutil.NullString `db:"change_ip" json:"changeIp"`
-	ChangeUserId sqlutil.NullInt64 `db:"change_user_id" json:"changeUserId"`
-	ChangeAt *time.Time `db:"change_date" json:"changeAt"`
-	LoginAt *time.Time `db:"last_login" json:"loginAt"`
-	CreatedAt *time.Time `db:"created" json:"createdAt"`
+	Id           int64              `db:"user_id" json:"id"`
+	Name         string             `db:"user_name" json:"name, string"`
+	Email        string             `db:"email" json:"email, string"`
+	NTCNick      sqlutil.NullString `db:"ntcnick" json:"ntcNick, string"`
+	NickHistory  sqlutil.NullString `db:"nickhistory" json:"nickHistory, string"`
+	Status       *uint16            `db:"user_status" json:"status"`
+	EmailUsed    sqlutil.NullInt64  `db:"email_used" json:"emailUsed, string"`
+	ReferrerId   sqlutil.NullInt64  `db:"referrer" json:"referrerId"`
+	GaduGadu     sqlutil.NullString `db:"gg" json:"gaduGadu, string"`
+	ExtraInfo    sqlutil.NullString `db:"extrainfo" json:"extraInfo"`
+	Trial        *uint16            `db:"trial" json:"trial"`
+	ShowEmail    sqlutil.NullString `db:"showemail" json:"showEmail"`
+	NbOfRefs     sqlutil.NullInt64  `db:"refer_count" json:"nbOfRefs"`
+	Suspended    sqlutil.NullString `db:"suspended" json:"suspended"`
+	ChangeIp     sqlutil.NullString `db:"change_ip" json:"changeIp"`
+	ChangeUserId sqlutil.NullInt64  `db:"change_user_id" json:"changeUserId"`
+	ChangeAt     *time.Time         `db:"change_date" json:"changeAt"`
+	LoginAt      *time.Time         `db:"last_login" json:"loginAt"`
+	CreatedAt    *time.Time         `db:"created" json:"createdAt"`
 }
 
 type User struct {
 	SecureUser
-	Password string `db:"user_pass" json:"password"`
-	PasswordSalt string `db:"pass_salt" json:"passwordSalt"`
-	PasswordType uint16 `db:"pass_type" json:"passwordType"`
-	BadLogins sqlutil.NullInt64 `db:"bad_logins" json:"badLogins"`
+	Password     string            `db:"user_pass" json:"password"`
+	PasswordSalt string            `db:"pass_salt" json:"passwordSalt"`
+	PasswordType uint16            `db:"pass_type" json:"passwordType"`
+	BadLogins    sqlutil.NullInt64 `db:"bad_logins" json:"badLogins"`
 }
 
 func (u *User) GetSecureUser() (su *SecureUser) {
@@ -70,38 +69,30 @@ func (u *User) GetSecureUser() (su *SecureUser) {
 
 type UserRegistration struct {
 	PlainPassword string `json:"plainPassword"`
-	Name string `json:"name, string"`
-	Email string `json:"email, string"`
+	Name          string `json:"name, string"`
+	Email         string `json:"email, string"`
 }
 
-func (self *UserRegistration) isValid() (isValid bool) {
-	isValid = true
+func (ur UserRegistration) Validate(errors binding.Errors, req *http.Request) binding.Errors {
+	v := validation.NewValidation(&errors, ur)
 
-	trimmedName := strings.TrimSpace(self.Name)
-	trimmedPassword := strings.TrimSpace(self.PlainPassword)
-	trimmedEmail := strings.TrimSpace(self.Email)
+	v.Validate(&ur.Name).
+		Message("Nazwa użytkownika może mieć od 3 do 20 znaków.").
+		Key("name").
+		TrimSpace().
+		Range(3, 20)
+	v.Validate(&ur.Email).
+		Message("Niepoprawny adres email.").
+		Key("email").
+		TrimSpace().
+		Email()
+	v.Validate(&ur.PlainPassword).
+		Message("Hasło może mieć od 6 do 20 znaków.").
+		Key("plainPassword").
+		TrimSpace().
+		Range(6, 20)
 
-	if !strings.EqualFold(self.Name, trimmedName) || !strings.EqualFold(self.PlainPassword, trimmedPassword) || !strings.EqualFold(self.Email, trimmedEmail) {
-		log.Println("Posiada biale znaki")
-		isValid = false
-	}
-
-	if words := strings.Fields(self.Name) ; len(words) > 1 {
-		log.Println("Posiada biale znaki w środku ")
-		isValid = false
-	}
-
-	if match, _ := regexp.MatchString(`(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})`, self.Email) ; !match {
-		log.Println("email ssie")
-		isValid = false
-	}
-
-	if utf8.RuneCountInString(self.Name) < 3 {
-		log.Println("Za krótki name")
-		isValid = false
-	}
-
-	return
+	return *v.Errors.(*binding.Errors)
 }
 
 func (self *UserRegistration) createUser() *User {
@@ -115,19 +106,19 @@ func (self *UserRegistration) createUser() *User {
 }
 
 type BasicUser struct {
-	Id int64 `json:"id"`
+	Id   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
 type UserSession struct {
-	Id int64 `db:"user_id" json:"id"`
-	Name string `db:"user_name" json:"name"`
-	Email *string `db:"email" json:"email"`
-	Trial *uint16 `db:"trial" json:"trial"`
-	Token string `db:"-" json:"token"`
-	Suspended *string `db:"suspended" json:"suspended"`
-	ChangeAt *time.Time `db:"change_date" json:"changeAt"`
-	LoginAt *time.Time `db:"last_login" json:"loginAt"`
+	Id        int64      `db:"user_id" json:"id"`
+	Name      string     `db:"user_name" json:"name"`
+	Email     *string    `db:"email" json:"email"`
+	Trial     *uint16    `db:"trial" json:"trial"`
+	Token     string     `db:"-" json:"token"`
+	Suspended *string    `db:"suspended" json:"suspended"`
+	ChangeAt  *time.Time `db:"change_date" json:"changeAt"`
+	LoginAt   *time.Time `db:"last_login" json:"loginAt"`
 	CreatedAt *time.Time `db:"created" json:"createdAt"`
 }
 
@@ -154,11 +145,11 @@ func (us *UserSession) getSessionKey() string {
 }
 
 func createUserSessionKey(key string) string {
-	return "user:"+key
+	return "user:" + key
 }
 
 type APICredentials struct {
-	Id int64 `form:"id" json:"id"`
+	Id    int64  `form:"id" json:"id"`
 	Token string `form:"token" json:"token"`
 }
 
@@ -167,6 +158,6 @@ func (apic *APICredentials) getSessionKey() string {
 }
 
 type LoginCredentials struct {
-	Email string `form:"email" json:"email"`
+	Email    string `form:"email" json:"email"`
 	Password string `form:"password" json:"password"`
 }

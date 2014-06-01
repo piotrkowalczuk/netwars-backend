@@ -5,7 +5,7 @@ import (
 	"github.com/martini-contrib/binding"
 )
 
-func CreateForumRoute(router martini.Router) () {
+func CreateForumRoute(router martini.Router) {
 	router.Get("/forum/:id", getForumHandler)
 	router.Get("/forum/:id/topics", getForumTopicsHandler)
 	router.Get("/forums", getForumsHandler)

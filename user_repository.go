@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 )
 
 type UserRepository struct {
@@ -175,4 +176,49 @@ func (ur *UserRepository) FindOneByEmailAndPassword(email string, password strin
 	)
 
 	return err, user
+}
+
+func (ur *UserRepository) FindBy(fieldName string, fieldValue string) (error, []*User) {
+	var users []*User
+	var err error
+
+	rows, err := ur.db.Query(
+		"SELECT * FROM users as u WHERE u."+fieldName+" = $1",
+		fieldValue,
+	)
+	defer rows.Close()
+
+	for rows.Next() {
+		user := new(User)
+		err = rows.Scan(
+			&user.Id,
+			&user.Name,
+			&user.Password,
+			&user.PasswordType,
+			&user.PasswordSalt,
+			&user.LoginAt,
+			&user.BadLogins,
+			&user.Email,
+			&user.NTCNick,
+			&user.NickHistory,
+			&user.Status,
+			&user.ChangeAt,
+			&user.ChangeUserId,
+			&user.ChangeIp,
+			&user.EmailUsed,
+			&user.ReferrerId,
+			&user.GaduGadu,
+			&user.ExtraInfo,
+			&user.CreatedAt,
+			&user.Trial,
+			&user.ShowEmail,
+			&user.NbOfRefs,
+			&user.Suspended,
+		)
+
+		users = append(users, user)
+	}
+
+	fmt.Println("#v", users)
+	return err, users
 }

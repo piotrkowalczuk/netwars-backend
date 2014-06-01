@@ -1,21 +1,21 @@
 package main
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	"io"
 	"bytes"
-	"log"
 	"encoding/json"
-	"testing"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/piotrkowalczuk/netwars-backend/database"
+	"io"
+	"log"
+	"testing"
 )
 
 var (
 	config *Config
-	m *martini.ClassicMartini
+	m      *martini.ClassicMartini
 )
 
 func TestMain(t *testing.T) {

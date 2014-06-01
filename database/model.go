@@ -1,7 +1,7 @@
 package database
 
 type RepositoryManager struct {
-repositories map[string]interface{}
+	repositories map[string]interface{}
 }
 
 func NewRepositoryManager() (repositoryManager *RepositoryManager) {

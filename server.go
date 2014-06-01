@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/piotrkowalczuk/netwars-backend/database"
-	"github.com/martini-contrib/render"
 	"github.com/go-martini/martini"
-	"net/http"
+	"github.com/martini-contrib/render"
+	"github.com/piotrkowalczuk/netwars-backend/database"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	redisPool := database.InitializeRedis(config.Redis)
 	postgrePool := database.InitPostgre(config.Postgre)
 
-	repositoryManager := NewRepositoryManager(postgrePool)
+	repositoryManager := NewRepositoryManager(postgrePool, redisPool)
 
 	m.Map(repositoryManager)
 	m.Map(redisPool)
@@ -28,16 +28,16 @@ func main() {
 	InitRoute(m)
 
 	log.Println("listening on " + config.Server.Host + ":" + config.Server.Port)
-	log.Fatalln(http.ListenAndServe(config.Server.Host + ":" + config.Server.Port, m))
+	log.Fatalln(http.ListenAndServe(config.Server.Host+":"+config.Server.Port, m))
 }
 
-func InitRoute(m *martini.Martini) () {
+func InitRoute(m *martini.Martini) {
 	router := martini.NewRouter()
 
 	CreateForumRoute(router)
 	CreateUserRoute(router)
 	CreateSearchRoute(router)
+	CreateStreamRoute(router)
 
 	m.Action(router.Handle)
 }
-
