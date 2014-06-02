@@ -1,5 +1,11 @@
 package main
 
+import (
+	"github.com/jamieomatthews/validation"
+	"github.com/martini-contrib/binding"
+	"net/http"
+)
+
 const (
 	STREAM_LIFE_TIME int = 300
 )
@@ -7,7 +13,7 @@ const (
 type Stream struct {
 	UserId          int64  `db:"user_id" json:"id"`
 	Type            int64  `db:"streamtype" json:"type" binding:"required"`
-	Identifier      string `db:"handle" json:"identifier" binding:"required"`
+	Identifier      string `db:"handle" json:"identifier"`
 	WingsOfLiberty  string `db:"wol" json:"wingsOfLiberty"`
 	HeartOfTheSwarm string `db:"hots" json:"heartOfTheSwarm"`
 	LeagueOfLegends string `db:"lol" json:"leagueOfLegends"`
@@ -33,6 +39,18 @@ type StructPreview struct {
 }
 type StreamRequest struct {
 	Stream
+}
+
+func (sr StreamRequest) Validate(errors binding.Errors, req *http.Request) binding.Errors {
+	v := validation.NewValidation(&errors, sr)
+
+	v.Validate(&sr.Identifier).
+		Message("Identyfikator nie może być pusty.").
+		Key("identifier").
+		TrimSpace().
+		Range(1, 45)
+
+	return *v.Errors.(*binding.Errors)
 }
 
 func (cusr *StreamRequest) isValid() bool {

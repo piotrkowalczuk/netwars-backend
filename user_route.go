@@ -23,8 +23,8 @@ func CreateUserRoute(router martini.Router) {
 	router.Post("/register", binding.Json(UserRegistration{}), registerHandler)
 	router.Post(
 		"/user/stream",
-		binding.Json(StreamRequest{}),
 		binding.Form(APICredentials{}),
+		binding.Json(StreamRequest{}),
 		AuthenticationMiddleware,
 		postUserStreamHandler,
 	)
