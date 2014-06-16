@@ -182,6 +182,7 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, userSession UserSes
 	createTopicRequest.Topic.AuthorName = sqlutil.NullString{sql.NullString{userSession.Name, true}}
 	createTopicRequest.Topic.LastPostAuthorId = sqlutil.NullInt64{sql.NullInt64{userSession.Id, true}}
 	createTopicRequest.Topic.LastPostAuthorName = sqlutil.NullString{sql.NullString{userSession.Name, true}}
+	createTopicRequest.Topic.LastPostDate = &now
 	createTopicRequest.Topic.NbOfPosts = sqlutil.NullInt64{sql.NullInt64{1, true}}
 	createTopicRequest.Topic.NbOfViews = sqlutil.NullInt64{sql.NullInt64{0, true}}
 
