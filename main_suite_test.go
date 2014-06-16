@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
@@ -14,8 +15,9 @@ import (
 )
 
 var (
-	config *Config
-	m      *martini.ClassicMartini
+	config      *Config
+	m           *martini.ClassicMartini
+	postgrePool *sql.DB
 )
 
 func TestMain(t *testing.T) {

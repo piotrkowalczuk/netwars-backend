@@ -38,6 +38,7 @@ func InitRoute(m *martini.Martini) {
 	CreateUserRoute(router)
 	CreateSearchRoute(router)
 	CreateStreamRoute(router)
+	//CreateReplayRoute(router)
 
 	m.Action(router.Handle)
 }

@@ -26,6 +26,15 @@ var _ = Describe("user_api", func() {
 				Expect(response.Code).To(Equal(http.StatusNotFound))
 			})
 		})
+		Context("should return user session object if credentials match", func() {
+			It("should be a novel", func() {
+				request, _ := http.NewRequest("POST", "/login", CreateJSONBody(struct{}{}))
+				response := httptest.NewRecorder()
+				m.ServeHTTP(response, request)
+
+				Expect(response.Code).To(Equal(http.StatusNotFound))
+			})
+		})
 	})
 	Describe("/logout", func() {
 		Context("should return 404 if there is no credentials", func() {
