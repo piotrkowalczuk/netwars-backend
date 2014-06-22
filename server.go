@@ -4,6 +4,7 @@ import (
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
 	"github.com/piotrkowalczuk/netwars-backend/database"
+	"github.com/piotrkowalczuk/netwars-backend/middleware"
 	"log"
 	"net/http"
 )
@@ -16,6 +17,7 @@ func main() {
 	m.Use(martini.Logger())
 	m.Use(martini.Recovery())
 	m.Use(render.Renderer())
+	m.Use(middleware.Sentry(config.Sentry))
 
 	redisPool := database.InitializeRedis(config.Redis)
 	postgrePool := database.InitPostgre(config.Postgre)

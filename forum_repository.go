@@ -14,7 +14,7 @@ func NewForumRepository(db *sql.DB) (repository *ForumRepository) {
 	return
 }
 
-func (fr *ForumRepository) FindOne(id int64) (error, *Forum) {
+func (fr *ForumRepository) FindOne(id int64) (*Forum, error) {
 	forum := new(Forum)
 
 	err := fr.db.QueryRow(
@@ -30,10 +30,10 @@ func (fr *ForumRepository) FindOne(id int64) (error, *Forum) {
 		&forum.ShowTopics,
 	)
 
-	return err, forum
+	return forum, err
 }
 
-func (fr *ForumRepository) Find() (error, []*Forum) {
+func (fr *ForumRepository) Find() ([]*Forum, error) {
 	var forums []*Forum
 	var err error
 
@@ -55,5 +55,5 @@ func (fr *ForumRepository) Find() (error, []*Forum) {
 		forums = append(forums, forum)
 	}
 
-	return err, forums
+	return forums, err
 }

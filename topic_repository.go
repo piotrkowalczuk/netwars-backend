@@ -97,7 +97,7 @@ func (tr *TopicRepository) Update(topic *Topic) (sql.Result, error) {
 	return result, err
 }
 
-func (tr *TopicRepository) FindOne(id int64) (error, *Topic) {
+func (tr *TopicRepository) FindOne(id int64) (*Topic, error) {
 	topic := new(Topic)
 
 	err := tr.db.QueryRow(
@@ -125,7 +125,44 @@ func (tr *TopicRepository) FindOne(id int64) (error, *Topic) {
 		&topic.ChangerIP,
 	)
 
-	return err, topic
+	return topic, err
+}
+
+func (tr *TopicRepository) FindOneWithUserTopic(topicId int64, userId int64) (*Topic, error) {
+	topic := new(Topic)
+	topic.UserTopic = new(UserTopic)
+
+	err := tr.db.QueryRow(
+		"SELECT ft.*, ut.* FROM forum_topic as ft LEFT JOIN user_topic as ut ON ft.topic_id = ut.topic_id WHERE (ut.user_id ISNULL OR ut.user_id = $1) AND ft.topic_id = $2",
+		userId,
+		topicId,
+	).Scan(
+		&topic.ForumId,
+		&topic.Id,
+		&topic.Name,
+		&topic.AuthorId,
+		&topic.AuthorName,
+		&topic.LastPostAuthorId,
+		&topic.LastPostAuthorName,
+		&topic.LastPostId,
+		&topic.LastPostDate,
+		&topic.NbOfPosts,
+		&topic.NbOfViews,
+		&topic.IsClosed,
+		&topic.IsPinned,
+		&topic.VisibleFrom,
+		&topic.VisibleTo,
+		&topic.IsDeleted,
+		&topic.ChangeAt,
+		&topic.ChangerId,
+		&topic.ChangerIP,
+		&topic.UserTopic.UserId,
+		&topic.UserTopic.TopicId,
+		&topic.UserTopic.Observed,
+		&topic.UserTopic.PostSeen,
+	)
+	logIf(err)
+	return topic, err
 }
 
 func (tr *TopicRepository) Find(forumId int64, limit int64, offset int64) ([]*Topic, error) {
@@ -162,6 +199,56 @@ func (tr *TopicRepository) Find(forumId int64, limit int64, offset int64) ([]*To
 			&topic.ChangeAt,
 			&topic.ChangerId,
 			&topic.ChangerIP,
+		)
+
+		topics = append(topics, topic)
+	}
+
+	return topics, err
+}
+
+func (tr *TopicRepository) FindWithUserTopic(forumId int64, userId int64, limit int64, offset int64) ([]*Topic, error) {
+	topics := []*Topic{}
+	var err error
+
+	rows, err := tr.db.Query(
+		"SELECT ft.*, ut.* FROM forum_topic as ft LEFT JOIN user_topic as ut ON ft.topic_id = ut.topic_id WHERE (ut.user_id ISNULL OR ut.user_id = $1) AND ft.forum_id = $2 ORDER BY ft.last_post_date DESC LIMIT $3 OFFSET $4",
+		userId,
+		forumId,
+		limit,
+		offset,
+	)
+	defer rows.Close()
+
+	for rows.Next() {
+		topic := new(Topic)
+		userTopic := new(UserTopic)
+		topic.UserTopic = userTopic
+
+		err = rows.Scan(
+			&topic.ForumId,
+			&topic.Id,
+			&topic.Name,
+			&topic.AuthorId,
+			&topic.AuthorName,
+			&topic.LastPostAuthorId,
+			&topic.LastPostAuthorName,
+			&topic.LastPostId,
+			&topic.LastPostDate,
+			&topic.NbOfPosts,
+			&topic.NbOfViews,
+			&topic.IsClosed,
+			&topic.IsPinned,
+			&topic.VisibleFrom,
+			&topic.VisibleTo,
+			&topic.IsDeleted,
+			&topic.ChangeAt,
+			&topic.ChangerId,
+			&topic.ChangerIP,
+			&topic.UserTopic.UserId,
+			&topic.UserTopic.TopicId,
+			&topic.UserTopic.Observed,
+			&topic.UserTopic.PostSeen,
 		)
 
 		topics = append(topics, topic)

@@ -8,14 +8,20 @@ import (
 	"github.com/martini-contrib/render"
 	"net/http"
 	"strconv"
+	"github.com/piotrkowalczuk/netwars-backend/service"
 )
 
-func getUserHandler(rm *RepositoryManager, r render.Render, params martini.Params) {
+func getUserHandler(
+	rm *RepositoryManager,
+	r render.Render,
+	params martini.Params,
+	sentry *service.Sentry,
+) {
 	id, err := strconv.ParseInt(params["id"], 10, 64)
-	logIf(err)
+	sentry.Error(err)
 
 	user, err := rm.UserRepository.FindOne(id)
-	logIf(err)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
@@ -25,7 +31,13 @@ func getUserHandler(rm *RepositoryManager, r render.Render, params martini.Param
 	r.JSON(http.StatusOK, &user)
 }
 
-func registerHandler(userRegistration UserRegistration, errors binding.Errors, r render.Render, rm *RepositoryManager) {
+func registerHandler(
+	userRegistration UserRegistration,
+	errors binding.Errors,
+	r render.Render,
+	rm *RepositoryManager,
+	sentry *service.Sentry,
+) {
 	if _, exists := rm.UserRepository.FindBy("email", userRegistration.Email); len(exists) > 0 {
 		errors = append(errors, binding.Error{
 			FieldNames:     []string{"email"},
@@ -50,7 +62,7 @@ func registerHandler(userRegistration UserRegistration, errors binding.Errors, r
 	user := userRegistration.createUser()
 
 	_, err := rm.UserRepository.Insert(user)
-	logIf(err)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusInternalServerError)
@@ -60,7 +72,13 @@ func registerHandler(userRegistration UserRegistration, errors binding.Errors, r
 	r.Error(http.StatusOK)
 }
 
-func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redis.Pool, rm *RepositoryManager) {
+func loginHandler(
+	credentials LoginCredentials,
+	r render.Render,
+	redisPool *redis.Pool,
+	rm *RepositoryManager,
+	sentry *service.Sentry,
+) {
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
@@ -68,7 +86,7 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 		Naive implementation
 	*/
 	err, user := rm.UserRepository.FindOneByEmailAndPassword(credentials.Email, credentials.Password)
-	logIf(err)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
@@ -77,7 +95,8 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 
 	userSession := NewUserSession(user)
 
-	responseData, _ := json.Marshal(userSession)
+	responseData, err := json.Marshal(userSession)
+	sentry.Error(err)
 
 	redisConnection.Do("SET", userSession.getSessionKey(), responseData)
 	redisConnection.Do("EXPIRE", userSession.getSessionKey(), SESSION_LIFE_TIME)
@@ -85,7 +104,11 @@ func loginHandler(credentials LoginCredentials, r render.Render, redisPool *redi
 	r.JSON(http.StatusOK, userSession)
 }
 
-func logoutHandler(userSession UserSession, r render.Render, redisPool *redis.Pool) {
+func logoutHandler(
+	userSession UserSession,
+	r render.Render,
+	redisPool *redis.Pool,
+) {
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
@@ -93,7 +116,11 @@ func logoutHandler(userSession UserSession, r render.Render, redisPool *redis.Po
 	r.Error(http.StatusOK)
 }
 
-func getOnlineUsersHandler(r render.Render, redisPool *redis.Pool) {
+func getOnlineUsersHandler(
+	r render.Render,
+	redisPool *redis.Pool,
+	sentry *service.Sentry,
+) {
 	redisConnection := redisPool.Get()
 	defer redisConnection.Close()
 
@@ -101,23 +128,25 @@ func getOnlineUsersHandler(r render.Render, redisPool *redis.Pool) {
 	var keys []interface{}
 
 	keysValues, err := redis.Values(redisConnection.Do("KEYS", "user:*"))
-	logIf(err)
+	sentry.Error(err)
 
 	for len(keysValues) > 0 {
 		var key interface{}
 
 		keysValues, err = redis.Scan(keysValues, &key)
+		sentry.Error(err)
 		keys = append(keys, key)
 	}
 
 	values, err := redis.Values(redisConnection.Do("MGET", keys...))
-	logIf(err)
+	sentry.Error(err)
 
 	for len(values) > 0 {
 		var value []byte
 		var user BasicUser
 
 		values, err = redis.Scan(values, &value)
+		sentry.Error(err)
 
 		json.Unmarshal(value, &user)
 		usersOnline[strconv.FormatInt(user.Id, 10)] = user
@@ -126,9 +155,15 @@ func getOnlineUsersHandler(r render.Render, redisPool *redis.Pool) {
 	r.JSON(http.StatusOK, usersOnline)
 }
 
-func getUserStreamHandler(rm *RepositoryManager, r render.Render, userSession UserSession, params martini.Params) {
+func getUserStreamHandler(
+	rm *RepositoryManager,
+	r render.Render,
+	userSession UserSession,
+	params martini.Params,
+	sentry *service.Sentry,
+) {
 	stream, err := rm.StreamRepository.FindOne(userSession.Id)
-	logIf(err)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
@@ -138,7 +173,14 @@ func getUserStreamHandler(rm *RepositoryManager, r render.Render, userSession Us
 	r.JSON(http.StatusOK, &stream)
 }
 
-func postUserStreamHandler(streamRequest StreamRequest, errors binding.Errors, userSession UserSession, rm *RepositoryManager, r render.Render) {
+func postUserStreamHandler(
+	streamRequest StreamRequest,
+	errors binding.Errors,
+	userSession UserSession,
+	rm *RepositoryManager,
+	r render.Render,
+	sentry *service.Sentry,
+) {
 	if len(errors) > 0 {
 		r.JSON(http.StatusBadRequest, errors)
 		return
@@ -155,6 +197,7 @@ func postUserStreamHandler(streamRequest StreamRequest, errors binding.Errors, u
 	}
 
 	if err != nil {
+		sentry.Error(err)
 		r.Error(http.StatusInternalServerError)
 		return
 	}

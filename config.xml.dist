@@ -12,4 +12,7 @@
     <postgre>
         <connectionString>postgres://postgres:postgres.123@localhost/netwars?sslmode=disable</connectionString>
     </postgre>
+    <sentry>
+        <dsn></dsn>
+    </sentry>
 </config>

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/jamieomatthews/validation"
 	"github.com/martini-contrib/binding"
-	"github.com/modcloth/sqlutil"
 	"github.com/nu7hatch/gouuid"
 	"net/http"
 	"time"
@@ -14,33 +14,33 @@ const (
 )
 
 type SecureUser struct {
-	Id           int64              `db:"user_id" json:"id"`
-	Name         string             `db:"user_name" json:"name, string"`
-	Email        string             `db:"email" json:"email, string"`
-	NTCNick      sqlutil.NullString `db:"ntcnick" json:"ntcNick, string"`
-	NickHistory  sqlutil.NullString `db:"nickhistory" json:"nickHistory, string"`
-	Status       *uint16            `db:"user_status" json:"status"`
-	EmailUsed    sqlutil.NullInt64  `db:"email_used" json:"emailUsed, string"`
-	ReferrerId   sqlutil.NullInt64  `db:"referrer" json:"referrerId"`
-	GaduGadu     sqlutil.NullString `db:"gg" json:"gaduGadu, string"`
-	ExtraInfo    sqlutil.NullString `db:"extrainfo" json:"extraInfo"`
-	Trial        *uint16            `db:"trial" json:"trial"`
-	ShowEmail    sqlutil.NullString `db:"showemail" json:"showEmail"`
-	NbOfRefs     sqlutil.NullInt64  `db:"refer_count" json:"nbOfRefs"`
-	Suspended    sqlutil.NullString `db:"suspended" json:"suspended"`
-	ChangeIp     sqlutil.NullString `db:"change_ip" json:"changeIp"`
-	ChangeUserId sqlutil.NullInt64  `db:"change_user_id" json:"changeUserId"`
-	ChangeAt     *time.Time         `db:"change_date" json:"changeAt"`
-	LoginAt      *time.Time         `db:"last_login" json:"loginAt"`
-	CreatedAt    *time.Time         `db:"created" json:"createdAt"`
+	Id           int64          `db:"user_id" json:"id"`
+	Name         string         `db:"user_name" json:"name, string"`
+	Email        string         `db:"email" json:"email, string"`
+	NTCNick      sql.NullString `db:"ntcnick" json:"ntcNick, string"`
+	NickHistory  sql.NullString `db:"nickhistory" json:"nickHistory, string"`
+	Status       *uint16        `db:"user_status" json:"status"`
+	EmailUsed    sql.NullInt64  `db:"email_used" json:"emailUsed, string"`
+	ReferrerId   sql.NullInt64  `db:"referrer" json:"referrerId"`
+	GaduGadu     sql.NullString `db:"gg" json:"gaduGadu, string"`
+	ExtraInfo    sql.NullString `db:"extrainfo" json:"extraInfo"`
+	Trial        *uint16        `db:"trial" json:"trial"`
+	ShowEmail    sql.NullString `db:"showemail" json:"showEmail"`
+	NbOfRefs     sql.NullInt64  `db:"refer_count" json:"nbOfRefs"`
+	Suspended    sql.NullString `db:"suspended" json:"suspended"`
+	ChangeIp     sql.NullString `db:"change_ip" json:"changeIp"`
+	ChangeUserId sql.NullInt64  `db:"change_user_id" json:"changeUserId"`
+	ChangeAt     *time.Time     `db:"change_date" json:"changeAt"`
+	LoginAt      *time.Time     `db:"last_login" json:"loginAt"`
+	CreatedAt    *time.Time     `db:"created" json:"createdAt"`
 }
 
 type User struct {
 	SecureUser
-	Password     string            `db:"user_pass" json:"password"`
-	PasswordSalt string            `db:"pass_salt" json:"passwordSalt"`
-	PasswordType uint16            `db:"pass_type" json:"passwordType"`
-	BadLogins    sqlutil.NullInt64 `db:"bad_logins" json:"badLogins"`
+	Password     string        `db:"user_pass" json:"password"`
+	PasswordSalt string        `db:"pass_salt" json:"passwordSalt"`
+	PasswordType uint16        `db:"pass_type" json:"passwordType"`
+	BadLogins    sql.NullInt64 `db:"bad_logins" json:"badLogins"`
 }
 
 func (u *User) GetSecureUser() (su *SecureUser) {

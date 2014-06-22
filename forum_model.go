@@ -36,6 +36,7 @@ type Topic struct {
 	ChangeAt           *time.Time         `db:"change_date" json:"changeAt"`
 	ChangerId          sqlutil.NullInt64  `db:"change_user_id" json:"changerId"`
 	ChangerIP          sqlutil.NullString `db:"change_ip" json:"changerIP"`
+	UserTopic          *UserTopic         `json:"userTopic"`
 }
 
 type Post struct {

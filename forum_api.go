@@ -8,15 +8,22 @@ import (
 	"github.com/modcloth/sqlutil"
 	"net"
 	"net/http"
+	"github.com/piotrkowalczuk/netwars-backend/service"
 	"strconv"
 	"time"
 )
 
-func getForumHandler(r render.Render, rm *RepositoryManager, params martini.Params) {
-	forumId, _ := strconv.ParseInt(params["id"], 10, 64)
+func getForumHandler(
+	r render.Render,
+	rm *RepositoryManager,
+	params martini.Params,
+	sentry *service.Sentry,
+) {
+	forumId, err := strconv.ParseInt(params["id"], 10, 64)
+	sentry.Error(err)
 
-	err, forum := rm.ForumRepository.FindOne(forumId)
-	logIf(err)
+	forum, err := rm.ForumRepository.FindOne(forumId)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
@@ -26,9 +33,13 @@ func getForumHandler(r render.Render, rm *RepositoryManager, params martini.Para
 	r.JSON(http.StatusOK, &forum)
 }
 
-func getForumsHandler(r render.Render, rm *RepositoryManager) {
-	err, forums := rm.ForumRepository.Find()
-	logIf(err)
+func getForumsHandler(
+	r render.Render,
+	rm *RepositoryManager,
+	sentry *service.Sentry,
+) {
+	forums, err := rm.ForumRepository.Find()
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
@@ -38,27 +49,43 @@ func getForumsHandler(r render.Render, rm *RepositoryManager) {
 	r.JSON(http.StatusOK, &forums)
 }
 
-func getForumTopicsHandler(rm *RepositoryManager, r render.Render, req *http.Request, params martini.Params) {
-	forumId, _ := strconv.ParseInt(params["id"], 10, 64)
+func getForumTopicsHandler(
+	rm *RepositoryManager,
+	r render.Render,
+	req *http.Request,
+	userSession UserSession,
+	params martini.Params,
+	sentry *service.Sentry,
+) {
+	forumId, err := strconv.ParseInt(params["id"], 10, 64)
+	sentry.Error(err)
 	queryString := req.URL.Query()
 
+	var topics []*Topic
 	var limit int64
 	var offset int64
 
 	if limitString := queryString.Get("limit"); limitString == "" {
 		limit = int64(10)
 	} else {
-		limit, _ = strconv.ParseInt(limitString, 10, 64)
+		limit, err = strconv.ParseInt(limitString, 10, 64)
+		sentry.Error(err)
 	}
 
 	if offsetString := queryString.Get("offset"); offsetString == "" {
 		offset = int64(0)
 	} else {
-		offset, _ = strconv.ParseInt(offsetString, 10, 64)
+		offset, err = strconv.ParseInt(offsetString, 10, 64)
+		sentry.Error(err)
 	}
 
-	topics, err := rm.TopicRepository.Find(forumId, limit, offset)
-	logIf(err)
+	if userSession.Id == 0 {
+		topics, err = rm.TopicRepository.Find(forumId, limit, offset)
+		sentry.Error(err)
+	} else {
+		topics, err = rm.TopicRepository.FindWithUserTopic(forumId, userSession.Id, limit, offset)
+		sentry.Error(err)
+	}
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
@@ -68,11 +95,24 @@ func getForumTopicsHandler(rm *RepositoryManager, r render.Render, req *http.Req
 	r.JSON(http.StatusOK, &topics)
 }
 
-func getTopicHandler(r render.Render, rm *RepositoryManager, params martini.Params) {
+func getTopicHandler(
+	r render.Render,
+	rm *RepositoryManager,
+	params martini.Params,
+	userSession UserSession,
+	sentry *service.Sentry,
+) {
+	var topic *Topic
+	var err error
 	topicId, _ := strconv.ParseInt(params["id"], 10, 64)
 
-	err, topic := rm.TopicRepository.FindOne(topicId)
-	logIf(err)
+	if userSession.Id == 0 {
+		topic, err = rm.TopicRepository.FindOne(topicId)
+		sentry.Error(err)
+	} else {
+		topic, err = rm.TopicRepository.FindOneWithUserTopic(topicId, userSession.Id)
+		sentry.Error(err)
+	}
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
@@ -82,15 +122,27 @@ func getTopicHandler(r render.Render, rm *RepositoryManager, params martini.Para
 	r.JSON(http.StatusOK, &topic)
 }
 
-func getTopicPostsHandler(r render.Render, rm *RepositoryManager, params martini.Params) {
+func getTopicPostsHandler(
+	r render.Render,
+	rm *RepositoryManager,
+	params martini.Params,
+	userSession UserSession,
+	sentry *service.Sentry,
+) {
 	topicId, _ := strconv.ParseInt(params["id"], 10, 64)
 
 	err, posts := rm.PostRepository.FindByTopicId(topicId)
-	logIf(err)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusNotFound)
 		return
+	}
+
+	if userSession.Id > 0 && len(posts) > 0 {
+		userTopic := NewUserTopic(userSession.Id, topicId, len(posts))
+		_, err = rm.UserTopicRepository.Upsert(userTopic)
+		sentry.Error(err)
 	}
 
 	for i := range posts {
@@ -100,11 +152,18 @@ func getTopicPostsHandler(r render.Render, rm *RepositoryManager, params martini
 	r.JSON(http.StatusOK, &posts)
 }
 
-func postPostHandler(post Post, rm *RepositoryManager, userSession UserSession, req *http.Request, r render.Render) {
+func postPostHandler(
+	post Post,
+	rm *RepositoryManager,
+	userSession UserSession,
+	req *http.Request,
+	r render.Render,
+	sentry *service.Sentry,
+) {
 	now := time.Now()
 
-	err, topic := rm.TopicRepository.FindOne(post.TopicId)
-	logIf(err)
+	topic, err := rm.TopicRepository.FindOne(post.TopicId)
+	sentry.Error(err)
 
 	post.ChangeAt = &now
 	post.CreatedAt = &now
@@ -117,7 +176,7 @@ func postPostHandler(post Post, rm *RepositoryManager, userSession UserSession, 
 	post.Content = &sanitizedContent
 
 	_, err = rm.PostRepository.Insert(&post)
-	logIf(err)
+	sentry.Error(err)
 
 	topic.NbOfPosts.Int64 += 1
 	topic.LastPostDate = &now
@@ -126,7 +185,7 @@ func postPostHandler(post Post, rm *RepositoryManager, userSession UserSession, 
 	topic.LastPostAuthorName = sqlutil.NullString{sql.NullString{userSession.Name, true}}
 
 	_, err = rm.TopicRepository.Update(topic)
-	logIf(err)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusInternalServerError)
@@ -137,18 +196,26 @@ func postPostHandler(post Post, rm *RepositoryManager, userSession UserSession, 
 	r.JSON(http.StatusOK, &post)
 }
 
-func patchPostHandler(createPostRequest CreatePostRequest, userSession UserSession, rm *RepositoryManager, params martini.Params, r render.Render) {
+func patchPostHandler(
+	createPostRequest CreatePostRequest,
+	userSession UserSession,
+	rm *RepositoryManager,
+	params martini.Params,
+	r render.Render,
+	sentry *service.Sentry,
+) {
 	if !createPostRequest.isValid() {
 		r.Error(http.StatusBadRequest)
 		return
 	}
 
-	postId, _ := strconv.ParseInt(params["id"], 10, 64)
+	postId, err := strconv.ParseInt(params["id"], 10, 64)
+	sentry.Error(err)
 
 	now := time.Now()
 
 	err, post := rm.PostRepository.FindOne(postId)
-	logIf(err)
+	sentry.Error(err)
 
 	post.ChangeAt = &now
 	post.ChangerId = sqlutil.NullInt64{sql.NullInt64{userSession.Id, true}}
@@ -158,7 +225,7 @@ func patchPostHandler(createPostRequest CreatePostRequest, userSession UserSessi
 	post.Content = &sanitizedContent
 
 	_, err = rm.PostRepository.Update(post)
-	logIf(err)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusInternalServerError)
@@ -168,7 +235,14 @@ func patchPostHandler(createPostRequest CreatePostRequest, userSession UserSessi
 	r.JSON(http.StatusOK, &post)
 }
 
-func postTopicHandler(createTopicRequest CreateTopicRequest, userSession UserSession, rm *RepositoryManager, req *http.Request, r render.Render) {
+func postTopicHandler(
+	createTopicRequest CreateTopicRequest,
+	userSession UserSession,
+	rm *RepositoryManager,
+	req *http.Request,
+	r render.Render,
+	sentry *service.Sentry,
+) {
 	if !createTopicRequest.isValid() {
 		r.Error(http.StatusBadRequest)
 		return
@@ -187,6 +261,7 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, userSession UserSes
 	createTopicRequest.Topic.NbOfViews = sqlutil.NullInt64{sql.NullInt64{0, true}}
 
 	topicId, err := rm.TopicRepository.Insert(&createTopicRequest.Topic)
+	sentry.Error(err)
 
 	createTopicRequest.Post.ChangeAt = &now
 	createTopicRequest.Post.CreatedAt = &now
@@ -197,14 +272,14 @@ func postTopicHandler(createTopicRequest CreateTopicRequest, userSession UserSes
 	createTopicRequest.Post.AuthorIP.String, _, _ = net.SplitHostPort(req.RemoteAddr)
 
 	postId, err := rm.PostRepository.Insert(&createTopicRequest.Post)
-	logIf(err)
+	sentry.Error(err)
 
 	createTopicRequest.Topic.Id = int64(topicId)
 	createTopicRequest.Topic.LastPostDate = &now
 	createTopicRequest.Topic.LastPostId = sqlutil.NullInt64{sql.NullInt64{int64(postId), true}}
 
 	_, err = rm.TopicRepository.Update(&createTopicRequest.Topic)
-	logIf(err)
+	sentry.Error(err)
 
 	if err != nil {
 		r.Error(http.StatusInternalServerError)

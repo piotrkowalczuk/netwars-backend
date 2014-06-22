@@ -8,7 +8,7 @@ import (
 func CreateUserRoute(router martini.Router) {
 	router.Get("/user/stream",
 		binding.Form(APICredentials{}),
-		AuthenticationMiddleware,
+		AuthenticationMiddleware(false),
 		getUserStreamHandler,
 	)
 	router.Get("/user/:id", getUserHandler)
@@ -17,7 +17,7 @@ func CreateUserRoute(router martini.Router) {
 	router.Post(
 		"/logout",
 		binding.Json(APICredentials{}),
-		AuthenticationMiddleware,
+		AuthenticationMiddleware(false),
 		logoutHandler,
 	)
 	router.Post("/register", binding.Json(UserRegistration{}), registerHandler)
@@ -25,7 +25,7 @@ func CreateUserRoute(router martini.Router) {
 		"/user/stream",
 		binding.Form(APICredentials{}),
 		binding.Json(StreamRequest{}),
-		AuthenticationMiddleware,
+		AuthenticationMiddleware(false),
 		postUserStreamHandler,
 	)
 }

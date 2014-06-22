@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"github.com/piotrkowalczuk/netwars-backend/database"
+	"github.com/piotrkowalczuk/netwars-backend/service"
 	"log"
 	"os"
 )
@@ -11,6 +12,7 @@ type Config struct {
 	Server  Server                 `xml:"server"`
 	Redis   database.RedisConfig   `xml:"redis"`
 	Postgre database.PostgreConfig `xml:"postgre"`
+	Sentry  service.SentryConfig   `xml:"sentry"`
 }
 
 type Server struct {

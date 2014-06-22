@@ -10,13 +10,13 @@ func CreateSearchRoute(router martini.Router) {
 		"/search",
 		binding.Json(SearchParams{}),
 		binding.Form(APICredentials{}),
-		AuthenticationMiddleware,
+		AuthenticationMiddleware(false),
 		postSearchHandler,
 	)
 	router.Get(
 		"/search/:id",
 		binding.Form(APICredentials{}),
-		AuthenticationMiddleware,
+		AuthenticationMiddleware(false),
 		getSearchResultsHandler,
 	)
 }

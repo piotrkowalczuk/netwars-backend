@@ -6,12 +6,13 @@ import (
 )
 
 type RepositoryManager struct {
-	UserRepository   *UserRepository
-	StreamRepository *StreamRepository
-	ForumRepository  *ForumRepository
-	TopicRepository  *TopicRepository
-	PostRepository   *PostRepository
-	SearchRepository *SearchRepository
+	UserRepository      *UserRepository
+	StreamRepository    *StreamRepository
+	ForumRepository     *ForumRepository
+	TopicRepository     *TopicRepository
+	PostRepository      *PostRepository
+	SearchRepository    *SearchRepository
+	UserTopicRepository *UserTopicRepository
 }
 
 func NewRepositoryManager(postgrePool *sql.DB, redisPool *redis.Pool) (rm *RepositoryManager) {
@@ -22,6 +23,7 @@ func NewRepositoryManager(postgrePool *sql.DB, redisPool *redis.Pool) (rm *Repos
 	rm.TopicRepository = NewTopicRepository(postgrePool)
 	rm.PostRepository = NewPostRepository(postgrePool)
 	rm.SearchRepository = NewSearchRepository(postgrePool)
+	rm.UserTopicRepository = NewUserTopicRepository(postgrePool)
 
 	streamSourceRedis := NewStreamSourceRedis(redisPool)
 	streamSourcePostgre := NewStreamSourcePostgre(postgrePool)
