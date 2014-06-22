@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/piotrkowalczuk/netwars-backend/database"
+	"github.com/piotrkowalczuk/netwars-backend/middleware"
 	"io"
 	"log"
 	"testing"
@@ -35,6 +36,7 @@ func InitializeEnvironment() {
 	m = martini.Classic()
 	m.Use(martini.Recovery())
 	m.Use(render.Renderer())
+	m.Use(middleware.Sentry(config.Sentry))
 
 	m.Map(repositoryManager)
 	m.Map(redisPool)

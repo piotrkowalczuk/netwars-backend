@@ -20,9 +20,9 @@ func AuthenticationMiddleware(isOptional bool) martini.Handler {
 		defer redisConnection.Close()
 
 		userSessionBytes, err := redis.Bytes(redisConnection.Do("GET", apiCredentials.getSessionKey()))
+		sentry.Error(err)
 
 		if err != nil {
-			sentry.Error(err)
 			if isOptional {
 				var userSession UserSession
 				c.Map(userSession)

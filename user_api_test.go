@@ -17,8 +17,8 @@ var _ = Describe("user_api", func() {
 		BeforeEach(func() {
 			m.Post("/login", binding.Json(LoginCredentials{}), loginHandler)
 		})
-		Context("should return 404 if there is no credentials", func() {
-			It("should be a novel", func() {
+		Context("user should be able to log in", func() {
+			It("should return 404 if there is no credentials", func() {
 				request, _ := http.NewRequest("POST", "/login", CreateJSONBody(struct{}{}))
 				response := httptest.NewRecorder()
 				m.ServeHTTP(response, request)
@@ -27,7 +27,7 @@ var _ = Describe("user_api", func() {
 			})
 		})
 		Context("should return user session object if credentials match", func() {
-			It("should be a novel", func() {
+			It("should return 404 if there is no credentials", func() {
 				request, _ := http.NewRequest("POST", "/login", CreateJSONBody(struct{}{}))
 				response := httptest.NewRecorder()
 				m.ServeHTTP(response, request)
@@ -37,8 +37,8 @@ var _ = Describe("user_api", func() {
 		})
 	})
 	Describe("/logout", func() {
-		Context("should return 404 if there is no credentials", func() {
-			It("should be a novel", func() {
+		Context("user should be able to log out", func() {
+			It("should return 404 if there is no credentials", func() {
 				request, _ := http.NewRequest("POST", "/logout", nil)
 				response := httptest.NewRecorder()
 				m.ServeHTTP(response, request)
@@ -48,8 +48,8 @@ var _ = Describe("user_api", func() {
 		})
 	})
 	Describe("/register", func() {
-		Context("should return 404 if there is no form send", func() {
-			It("should be a novel", func() {
+		Context("user should be able to register", func() {
+			It("should return 404 if there is no form send", func() {
 				request, _ := http.NewRequest("POST", "/register", nil)
 				response := httptest.NewRecorder()
 				m.ServeHTTP(response, request)
