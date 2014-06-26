@@ -133,7 +133,11 @@ func (tr *TopicRepository) FindOneWithUserTopic(topicId int64, userId int64) (*T
 	topic.UserTopic = new(UserTopic)
 
 	err := tr.db.QueryRow(
-		"SELECT ft.*, ut.* FROM forum_topic as ft LEFT JOIN user_topic as ut ON ft.topic_id = ut.topic_id WHERE (ut.user_id ISNULL OR ut.user_id = $1) AND ft.topic_id = $2",
+		`SELECT ft.*, ut.*
+		FROM forum_topic as ft
+		LEFT JOIN user_topic as ut
+		ON ut.topic_id = ft.topic_id AND (ut.user_id ISNULL OR ut.user_id = $1)
+		WHERE ft.topic_id = $2`,
 		userId,
 		topicId,
 	).Scan(
@@ -212,7 +216,15 @@ func (tr *TopicRepository) FindWithUserTopic(forumId int64, userId int64, limit 
 	var err error
 
 	rows, err := tr.db.Query(
-		"SELECT ft.*, ut.* FROM forum_topic as ft LEFT JOIN user_topic as ut ON ft.topic_id = ut.topic_id WHERE (ut.user_id ISNULL OR ut.user_id = $1) AND ft.forum_id = $2 ORDER BY ft.last_post_date DESC LIMIT $3 OFFSET $4",
+		`SELECT ft.*, ut.*
+		FROM forum_topic as ft
+		LEFT JOIN user_topic as ut
+		ON ft.topic_id = ut.topic_id AND (ut.user_id ISNULL OR ut.user_id = $1)
+		WHERE ft.forum_id = $2
+		ORDER BY ft.last_post_date
+		DESC
+		LIMIT $3
+		OFFSET $4`,
 		userId,
 		forumId,
 		limit,
