@@ -101,7 +101,12 @@ func (pr *PostRepository) FindOne(id int64) (error, *Post) {
 func (pr *PostRepository) FindByTopicId(topicId int64) (error, []*Post) {
 	posts := []*Post{}
 
-	rows, err := pr.db.Query("SELECT * FROM forum_post WHERE topic_id = $1", topicId)
+	rows, err := pr.db.Query(`
+		SELECT *
+		FROM forum_post
+		WHERE topic_id = $1
+		ORDER BY post_id ASC
+		`, topicId)
 	defer rows.Close()
 
 	for rows.Next() {
