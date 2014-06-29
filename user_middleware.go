@@ -11,11 +11,12 @@ import (
 func AuthenticationMiddleware(isOptional bool) martini.Handler {
 	return func(
 		c martini.Context,
-		apiCredentials APICredentials,
 		res http.ResponseWriter,
+		req *http.Request,
 		redisPool *redis.Pool,
 		sentry *service.Sentry,
 	) {
+		apiCredentials := APICredentials{req.Header.Get("Authorization")}
 		redisConnection := redisPool.Get()
 		defer redisConnection.Close()
 

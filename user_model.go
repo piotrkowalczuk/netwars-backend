@@ -149,7 +149,6 @@ func createUserSessionKey(key string) string {
 }
 
 type APICredentials struct {
-	Id    int64  `form:"id" json:"id"`
 	Token string `form:"token" json:"token"`
 }
 

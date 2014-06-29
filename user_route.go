@@ -7,7 +7,6 @@ import (
 
 func CreateUserRoute(router martini.Router) {
 	router.Get("/user/stream",
-		binding.Form(APICredentials{}),
 		AuthenticationMiddleware(false),
 		getUserStreamHandler,
 	)
