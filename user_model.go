@@ -2,11 +2,12 @@ package main
 
 import (
 	"database/sql"
-	"github.com/jamieomatthews/validation"
-	"github.com/martini-contrib/binding"
-	"github.com/nu7hatch/gouuid"
 	"net/http"
 	"time"
+
+	"github.com/jamieomatthews/validation"
+	"github.com/martini-contrib/binding"
+	uuid "github.com/nu7hatch/gouuid"
 )
 
 const (
@@ -37,9 +38,9 @@ type SecureUser struct {
 
 type User struct {
 	SecureUser
-	Password     string        `db:"user_pass" json:"password"`
-	PasswordSalt string        `db:"pass_salt" json:"passwordSalt"`
-	PasswordType uint16        `db:"pass_type" json:"passwordType"`
+	Password     string        `db:"user_pass" json:"-"`
+	PasswordSalt string        `db:"pass_salt" json:"-"`
+	PasswordType uint16        `db:"pass_type" json:"-"`
 	BadLogins    sql.NullInt64 `db:"bad_logins" json:"badLogins"`
 }
 
